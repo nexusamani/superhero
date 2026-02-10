@@ -1,426 +1,410 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Saufi's English Hero</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', 'Arial', sans-serif; background-color: #87CEEB; user-select: none; }
+        #game-container { position: relative; width: 100vw; height: 100vh; background: linear-gradient(to bottom, #4FC3F7, #E1F5FE); overflow: hidden; }
+
+        /* --- UI STYLES --- */
+        .screen-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; text-align: center; }
+        .hidden { display: none !important; }
+
+        /* Login Box */
+        .login-box { background: white; padding: 30px; border-radius: 15px; color: #333; width: 350px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        select, input { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 5px; border: 2px solid #0288D1; box-sizing: border-box; }
+        label { font-weight: bold; display: block; text-align: left; margin-top: 10px; color: #01579B; }
+
+        /* HUD */
+        #ui-layer { position: absolute; top: 20px; left: 20px; z-index: 100; pointer-events: none; display: flex; gap: 20px; flex-wrap: wrap;}
+        .hud-panel { background: rgba(255, 255, 255, 0.95); padding: 10px 20px; border-radius: 15px; border: 3px solid #0288D1; font-weight: bold; color: #333; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+
+        /* Game Entities */
+        #hero { position: absolute; width: 70px; height: 45px; background: linear-gradient(to right, #D32F2F, #B71C1C); border-radius: 10px 30px 30px 10px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: -5px 5px 10px rgba(0,0,0,0.3); z-index: 10; font-size: 10px; transition: transform 0.1s; }
+        #hero::before { content: ''; position: absolute; left: -10px; top: 5px; width: 20px; height: 35px; background-color: #FFCDD2; z-index: -1; animation: flap 0.2s infinite alternate; }
+        @keyframes flap { from { transform: scaleY(0.8); } to { transform: scaleY(1.2); } }
+
+        .word-bubble { position: absolute; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; white-space: nowrap; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); z-index: 5; }
+
+        /* Boss */
+        #boss-container { position: absolute; right: -300px; top: 50%; width: 200px; height: 200px; display: flex; flex-direction: column; align-items: center; transition: right 1s ease-out; z-index: 20; }
+        #boss-sprite { width: 150px; height: 150px; background: #4A148C; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 80px; border: 5px solid white; box-shadow: 0 0 30px #7B1FA2; }
+        #boss-hp-bar { width: 150px; height: 20px; background-color: #ddd; border-radius: 10px; margin-top: 10px; overflow: hidden; border: 2px solid white; }
+        #boss-hp-fill { width: 100%; height: 100%; background-color: #D32F2F; transition: width 0.2s; }
+
+        /* Buttons */
+        .btn { padding: 15px 40px; font-size: 20px; margin: 10px; cursor: pointer; border: none; border-radius: 50px; background: linear-gradient(to bottom, #FF5722, #E64A19); color: white; font-weight: bold; box-shadow: 0 4px 0 #BF360C; }
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        #save-status { margin-top: 10px; font-size: 16px; font-style: italic; color: #FFEB3B; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Dr. Saufi's English Hero&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', 'Arial', sans-serif; background-color: #87CEEB; user-select: none; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#game-container { position: relative; width: 100vw; height: 100vh; background: linear-gradient(to bottom, #4FC3F7, #E1F5FE); overflow: hidden; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- UI STYLES --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.screen-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: white; text-align: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.hidden { display: none !important; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Login Box */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.login-box { background: white; padding: 30px; border-radius: 15px; color: #333; width: 350px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>select, input { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 5px; border: 2px solid #0288D1; box-sizing: border-box; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>label { font-weight: bold; display: block; text-align: left; margin-top: 10px; color: #01579B; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* HUD */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#ui-layer { position: absolute; top: 20px; left: 20px; z-index: 100; pointer-events: none; display: flex; gap: 20px; flex-wrap: wrap;}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.hud-panel { background: rgba(255, 255, 255, 0.95); padding: 10px 20px; border-radius: 15px; border: 3px solid #0288D1; font-weight: bold; color: #333; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Game Entities */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#hero { position: absolute; width: 70px; height: 45px; background: linear-gradient(to right, #D32F2F, #B71C1C); border-radius: 10px 30px 30px 10px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: -5px 5px 10px rgba(0,0,0,0.3); z-index: 10; font-size: 10px; transition: transform 0.1s; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#hero::before { content: ''; position: absolute; left: -10px; top: 5px; width: 20px; height: 35px; background-color: #FFCDD2; z-index: -1; animation: flap 0.2s infinite alternate; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes flap { from { transform: scaleY(0.8); } to { transform: scaleY(1.2); } }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.word-bubble { position: absolute; padding: 10px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; white-space: nowrap; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); z-index: 5; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Boss */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#boss-container { position: absolute; right: -300px; top: 50%; width: 200px; height: 200px; display: flex; flex-direction: column; align-items: center; transition: right 1s ease-out; z-index: 20; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#boss-sprite { width: 150px; height: 150px; background: #4A148C; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 80px; border: 5px solid white; box-shadow: 0 0 30px #7B1FA2; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#boss-hp-bar { width: 150px; height: 20px; background-color: #ddd; border-radius: 10px; margin-top: 10px; overflow: hidden; border: 2px solid white; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#boss-hp-fill { width: 100%; height: 100%; background-color: #D32F2F; transition: width 0.2s; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Buttons */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn { padding: 15px 40px; font-size: 20px; margin: 10px; cursor: pointer; border: none; border-radius: 50px; background: linear-gradient(to bottom, #FF5722, #E64A19); color: white; font-weight: bold; box-shadow: 0 4px 0 #BF360C; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn:hover { transform: scale(1.05); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn:active { transform: translateY(4px); box-shadow: none; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>#save-status { margin-top: 10px; font-size: 16px; font-style: italic; color: #FFEB3B; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.blink { animation: blinker 1s linear infinite; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes blinker { 50% { opacity: 0; } }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="game-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="ui-layer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hud-panel"&gt;👤 &lt;span id="player-name-display"&gt;Guest&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hud-panel"&gt;❤️ &lt;span id="lives-display"&gt;3&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hud-panel"&gt;⭐ &lt;span id="score-display"&gt;0&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hud-panel"&gt;🎯 &lt;span id="target-display"&gt;TASK&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="hero" style="top: 50%; left: 100px;"&gt;HERO&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="boss-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="boss-sprite"&gt;👾&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="boss-hp-bar"&gt;&lt;div id="boss-hp-fill"&gt;&lt;/div&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="login-screen" class="screen-overlay"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1&gt;Dr. Saufi's&lt;br&gt;&lt;span style="color:#FFEB3B"&gt;English Hero&lt;/span&gt;&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="login-box"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label&gt;1. Select Your Class:&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;select id="class-select" onchange="populateNameList()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value=""&gt;-- Choose Class --&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/select&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label&gt;2. Find Your Name:&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="text" id="name-input" list="student-names" placeholder="Type your name here..." disabled autocomplete="off"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;datalist id="student-names"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/datalist&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn" style="width:100%; margin: 20px 0;" onclick="handleLogin()"&gt;Start Game&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="start-screen" class="screen-overlay hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2&gt;Welcome, &lt;span id="welcome-name" style="color:#4FC3F7"&gt;Hero&lt;/span&gt;!&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;Dr. Saufi needs you to collect:&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="category-buttons"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="game-over-screen" class="screen-overlay hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 style="color: #FF5252;"&gt;GAME OVER&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2&gt;Final Score: &lt;span id="final-score"&gt;0&lt;/span&gt;&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="save-status" class="blink"&gt;Saving score to database...&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn" onclick="location.reload()"&gt;Play Again&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// ============================================</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// 1. DATA: STUDENT DATABASE (CLEANED)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// ============================================</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const schoolData = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"1 AL BIRUNI": ["ABDUL RAYYAN MIKAIL BIN ABDUL RASHID", "AHMAD DANISH AQEEL BIN AHMAD BARDAIN", "KHALISH NAUFAL BIN KHAIRUL ARMAN", "MOHAMAD AMMAR IRFAN BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZULFAN NAIM KHALISH BIN MOHD ZULKARNAIN", "MUHAMAD AFEEF ILYAS BIN MUHAMAD GHADAFFI", "MUHAMAD NAQIB RASYDAN BIN MOHAMAD RASYID", "MUHAMMAD ADYAN NAUFAL BIN ABDUL HANIF", "MUHAMMAD AISY FIRDAUS BIN MUHAMAAD FITRI", "MUHAMMAD DAYYAN ZAFFRAN BIN ABDULLAH", "MUHAMMAD FIRAS RIZQI BIN MUHD FADZLI", "MUHAMMAD IRFAN NAUFAL BIN MUHAMMAD ILYAS", "MUHAMMAD NUH RIFQI BIN AHMAD BAZLI", "MUHAMMAD RIZWAN HAQIMIE BIN ABDUL MUZIL", "MUHAMMAD UMAR AL-KHATTAB BIN MUHAMMAD FIRDAUS", "MUHAMMAD UMAR SHARIF BIN ZUL", "WAN MUHAMMAD AMZAR BIN WAN AZMAN", "ALYA ADRIANA BINTI MOHD RIZUAN", "HANA MEDINA BINTI MOHD. AIMAN NURHAKIM", "KYAYRA NADEERA HAURA BINTI MOHAMAD KHAIRUL NIZAM", "NAURA AISYAH BINTI MOHD ASRI", "NOR AIRA JANNAH BINTI MOHD ASNAWI", "NUR AAIRA QAISARA BINTI MOHD RIZAL", "NUR AIRA AMANI BINTI ALIAS", "NUR ASSYIFA HANEEM BINTI MOHD IKBAL HAKIM", "NUR AYRA AISYAH BINTI MOHD KHAIRI", "NUR FATHIA NAYLA BINTI MUHAMMAD YUSRI", "NUR HUMAIRA BINTI MUHD LUQMAN", "NUR JASMINE HANA MEDINA BINTI HIZWAN FAZRI", "NUR QALESYA BINTI YUSOF", "NUR SOFEA MEDINA BINTI MOHD SYUFIAN", "NURDIYANA AWFIYAH BINTI ZULKIFLI", "PUTERI EILYANA BINTI MUHAMMAD SHAFID", "ROS AMIRA SAFIYA BINTI ABDULLAH", "SITI SABARISHA BINTI MOHD SALEH", "SITI NORAAFIYAH INSYIRAH BT ABU HASSAN"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"1 AL FARABI": ["ADAM DANIEL BIN MOHD SUKRI", "DANIAL NUQMAN BIN ABDUL HANIF SAFWAN", "MOHAMAD MIQAEL BIN MOHAMAD FAIZIE", "MOHAMAD ZULFAQAR BIN MOHAMAD NAKIAH L", "MUHAMAD ANAS MIKAIL BIN MUHAMAD NASSRUDIN", "MUHAMMAD ADAM BIN ABDUL RAUFF", "MUHAMMAD ALIFF NAUFAL BIN ZULNIZAN", "MUHAMMAD AQIB BIN MOHD ZAMZIRO", "MUHAMMAD ELMAN AUS BIN MOHD ADILA", "MUHAMMAD IMAN NAUFAL BIN ABDUL FATTAH", "MUHAMMAD IZZ AYAAZ BIN MOHD NAZARUDI", "MUHAMMAD SYAKIR NASRAN BIN MUHAMAD SHAZUAN", "NOAH MIQAEL BIN MOHAMMAD KHAIRIL MUZAFFAR", "NOR AISY ZUFAR BIN NOR ZULHAIRIE", "NUR MUHAMMAD AAFI MUSLIM BIN ARIF FADILLAH", "WAN MUHAMMAD HARITH BIN WAN MOHD FAHMI NASRI", "ZAYYAN AAKIF BIN MOHAMAD ZULAZLAN", "ADRIANA AMANDA A/P JEFFRY", "ATHIA ZARA BINTI MOHD ZAKI", "HAURA HASNA BINTI MOHD SHASRUL HASRA", "MARYAM FATHIYYAH BINTI ABD ZUKHRUFUDDIN", "NIA QALESYA BINTI MOHAMAD AZWAN IFRAM", "NOOR SYAFILA NATASYA BINTI ABD MALIK", "NUR AFEEYA FAQIHAH BINTI MOHAMAD FARID", "NUR AIREEN MEDINA BINTI AHMAD AIZAT", "NUR ATIYA AILEEN BINTI MOHD SOBRE", "NUR AZZAHRA SAFIYYAH BINTI MOHD SIDEK", "NUR FATIHAH AMALIA BINTI MOHD ROSNI", "NUR HUMAIRA BINTI ABDUL MUEIZ", "NUR QISYA ZAHRA BINTI ROIS", "NUR SYAHIRAH SOLEHAH BINTI BADRUL HISYAM", "NURIN AMNA HUWAIDA BINTI MOHD ROKMAN", "QHADEEJA AINNUR MEDINA BINTI ANWAR SHAFIQ", "SITI AFIA MIKAYLA BINTI SH.FIZULREZUAN", "TENGKU TEH ANNISAA BINTI TENGKU MOHD IKMAN HANIFF", "WAN AISYAH NABILAH BINTI WAN MOHAMAD HAFIQ", "WAN IMAN SAFA BINTI WAN MOHAMMAD SHUKRI"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"1 AL KINDI": ["ADAM MUQRI BIN MOHD ZAIMI", "AHMAD NAUFAL BIN AHMAD NASRI", "AR RAYYAN MAULANA BIN ABDUL SALAM", "MOHAMAD PUTERA RAMADHAN BIN ASRAH @ SHAFIE", "MOHAMMAD HAFIZOL BIN MOHD SHAIFUDDIN", "MUHAMAD ANAS MIKHAIL BIN ABDULLAH", "MUHAMMAD ADAM FARIS BIN MUHAMMAD JEFRI", "MUHAMMAD AIDAN KHALISH BIN MOHD WAN ABDUL WAHAB", "MUHAMMAD ALIF AIDAN BIN MPHD AIMAN", "MUHAMMAD AZRAIKAL BIN MOHD AFFENDI", "MUHAMMAD FARHAN DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAYYAN BIN MOHD HIDAYATULLAH", "MUHAMMAD KHAZEEN BIN MUHAMMAD FADHIL", "MUHAMMAD RIDHWAN BIN MOHD ASRI", "MUHAMMAD SYAZWAN HAIKAL BIN YAHYA", "NASHRULLAH WAFI BIN MOHD KHAIRULDDIN", "NIK MUHAMMAD AMJAD BIN NIK MOHD ARIF", "YURI BIN MOHD YUNUS", "AMIRA SYAFIRA BINTI UMAR", "CHE UMMIE SAIDATUL AMINAH BINTI CHE ANUAR", "DEANDRA NUR AMMARA BINTI DANISH BAARATHMOGAN", "INARA NUR AYESHA BINTI CHE MOHD FISWAN", "MARYAM NUR MEDINA BINTI ABU BAKAR", "NOOR IZZARA IMELDA BINTI MOHD SAFWAN SARIY", "NOR HANA SOFEA BINTI FADZLI SHAH", "NUR AFEEYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ALYA FARISHA BINTI MOHD FAIZ", "NUR ATIYA HUMAIRA BINTI MAT YASIN", "NUR DAYANA HAZWANI BINTI MOHD SHADAT", "NUR HANA WARDINA BINTI MOHD KHAIRUL MUZZAMIR", "NUR NADIA BINTI YAAKUB", "NUR NAYLA QAISARA BINTI MOHD HAFIZ", "NUR RAYSHA RANIA BINTI MOHD QATAMAN", "NUR WIDAD SAFIYA BINTI KHAIRUL IZAT", "NURUL RAISHA RABIATUL ADAWIYAH BINTI KHOSIM", "RAJA NOR AMANDA AQILAH BINTI RAJA MOHAMAD AZLAN", "SITI NORAIN ASYIQIN BINTI ABDUL HAFIZ", "NUR INARA HUSNA BINTI MOHD FIRDAUS"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"1 AL RAZI": ["AMAR AUS BIN MOHD EMMAR ZAMSHAH", "CHE WAN AHMAD AYDAN ZHARIF BIN CHE WAN MOHD FIRDAUS", "MOHAMAD ZULFAHMI BIN MOHAMAD ZULFADELI", "MOHAMMAD IAN RIZQI BIN MOHAMAD IMAN FAIZ", "MUHAMAD ANIQ RAFIQI BIN MUHAMAD RAHMAN", "MUHAMMAD ADAM FIRAS BIN SAMSUDIN", "MUHAMMAD AFIQ DHANNI BIN ABDUL AZHIM", "MUHAMMAD AZZAM SYAREEF BIN MOHAMAD ASYRAF", "MUHAMMAD FATEH HILMAN BIN MOHD ARIS", "MUHAMMAD HANIF MIKAIL BIN MUHAMAD HAKIMI", "MUHAMMAD ILHAN EQBAL BIN AHMAD", "MUHAMMAD LUTH RIZQI BIN AHMAD BAZLI", "MUHAMMAD RIFFQIE ARFAN BIN MOHD KHAIRUL IEZWAN", "MUHAMMAD SYAQIF AMMAR BIN SAIMI", "MUHAMMAD UMAR BIN MOHD ADIB", "MUHAMMAD ZARIF AZIZ BIN MOHD ZAMRI", "WAN MUHAMMAD AMMAR IRFAN BIN WAN MOHD ARIF AMIRUDDIN", "WA'QEEL ALTHAF BIN MOHAMAD EFFENDI", "AISYA AFIA BINTI MUHAMMAD AMIR", "ARWA ALESYA NURZAHRA BINTI MOHD KHAIRI AZLI", "DHIA AULIYA BINTI MUHAMAD TAQIYUDDIN", "MARYAM SYAFIRA BINTI MOHAMAD KHAIRUL HAFIZ", "NIK NUR HUSNA BINTI MUHAMAD SHAHARUDDIN", "NOR ZAHIRA AQILAH BINTI ZULKIFLI", "NUR AFRINA RAISYA BINTI OTHMAN", "NUR ASSYIFA HANAN BINTI MOHD IKBAL HAKIM", "NUR AULIYA HAURA BINTI AZLAN", "NUR DHAFWATUL AISY HAYANI BINTI ROAZAMI", "NUR HAURA' HUMAIRAA BINTI MOHD FADZIRUL EAFFENDY", "NUR INARA HANA BINTI MOHD FIRDAUS", "NUR IZARA RAISHA BINTI MOHD NIZAM FAZRUL", "NUR NAIRA AQILA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SARA MIKAYLA BINTI MUHAMMAD IKHTIYARUDDIN BAKHTIAR", "NUR ZAHRA SOFFIA BINTI AZHAR", "PUTERI ANGGUN ZENIA BINTI ZULHELMI", "SHAHEEN IMANI BINTI MD YASROL", "SITI RAWDHA ALFIA BINTI MOHD YUSDY BULHAQS", "TUAN AYRA MIKAYLA BINTI TUAN SHAMSUDIN"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"2 AL BIRUNI": ["ARIIQ MIKAIL BIN MOHD HERISAH", "KU MUHAMMAD ADAM RAYYAN BIN KU MOHD SAFUAN", "MOHAMAD IMAN NAWFAL BIN SAYUTI", "MOHAMAD RAYYAN HAIKAL BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZAFRIEL MIKHAIL BIN NOR AZLAN", "MUHAMMAD ABDULLAH FAQIH BIN MOHD JUNAR AMAL", "MUHAMMAD ADDAS BIN YUSAIDY", "MUHAMMAD AMMAR ASYRAF BIN MOHAMAD TERMIZI", "MUHAMMAD AQEEF FIRASH BIN MOHAMAD FIRDAUS", "MUHAMMAD AQIF UZAIR BIN MOHD AFZANIZAM", "MUHAMMAD AQIL RAYYAN BIN AZFARIZAL SHAZWAN", "MUHAMMAD FARIS IQBAL BIN MOHD SAUPI", "MUHAMMAD HANAFI ZAFRAN BIN MOHD RIDZUAN", "MUHAMMAD MUAZ BIN MUHAMMAD MUHSIN", "PUTRA ANAQI MIKHAIL BIN MOHD FIRDAOUS", "QIWAMUDDIN BASHAR BIN AZMUDDIN", "RAIHAN ANAQI BIN ABDUL HAQQ", "WAN MUHAMMAD ARFAAN BIN WAN AFZAN", "HANNAH HASEENA BINTI HASWAWI", "NUR AAFIYAH BINTI MUHAMMAD NASRI", "NUR AAIRA ZINNIRAH BINTI MOHD SYAHRIZAI", "NUR AIN ADILA FATIHAH BINTI MAT ROSDI", "NUR AIRA MIKAYLA BINTI MOHD RAZALI", "NUR FALISHA BINTI MOHD FIRDAUS", "NUR IMANINA DARLEENA BINTI MOHAMED ZUHIR", "NUR SHADRINA FATHIA BINTI SHAMSURI", "NURIN AINUL MARDHIAH BINTI AKASHAH", "RAISYAA RANNIA BINTI MOHD SAIFUL NIZAM", "SITI NUR AFIA IMANI BINTI ASMAWI", "SYIFAA AZZAHRA BINTI ABDUL SYIHABUDDIN", "TUAN NUR AMNA QAILLA BINTI TUAN ROSLEE", "ULAYYA SAFIYYA BINTI ABDULLAH", "ZYRA NOUREEN BINTI MOHD. RAFIQ IZZAT", "ADARA SAFWAH BINTI MOHD SOLEHUDDIN"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"2 AL FARABI": ["ABDULLAH AMMAR BIN AHMAD KAMIL HAFIZ", "AHMAD UMAR QURAISY BIN AHMAD FIRDAUS", "HABIB HASSAN BIN KARIM", "MUHAMMAD AIDAN HAIKAL BIN MOHD IDHAM", "MUHAMMAD AL FATIH BIN MOHD ARIFIN", "MUHAMMAD AMSYAR RAFIQIN BIN MOHD RAZREEN", "MUHAMMAD IFFAT RAFIUDDIN BIN AZMI", "MUHAMMAD ILHAM BIN MOHD TOHIR", "MUHAMMAD NAUFAL BIN AGUNG SUPRIYANTO", "MUHAMMAD NURKHALAF FAHMI BIN MOHD SHAZALEE", "MUHAMMAD RAZZAN IZZRAF BIN MOHD JALANI", "MUHAMMAD ZAFRAN RAZI BIN MOHD HANIFF", "TUAN HARRAZ ANAQI BIN TUAN AHMAD HAFISZA", "UMAR ARRAYYAN BIN MUHAMMAD ZULFAHMY", "WAN MUHAMAD ZULFAHMI BIN WAN HAZLAN", "WAN MUHAMMAD HASIFF BIN WAN MOHD FAHMI NASRI", "ANGGUN MIQAELA BINTI MOHAMMAD KHAIRIL MUZAFFAR", "ANIS RAISYA ADRIANA BINTI AZMIL", "NIK AISYA BINTI NIK MOHD HANAFIAH", "NOR ZULAIKHA HUMAIRA BINTI MOHAMAD ZULKIFLI", "NUR AINAN SOFIA BINTI MOHD ZAHID", "NUR IMANI HAFIYA BINTI ABD HAFIZUDDIN", "NUR JAUZA AL-ZAHHRA BINTI ZUWAIRI", "NUR KHAYRA MIKAYLA BINTI MUHAMAD FAIZOL", "NUR QALESYA HUMAIRA BINTI MOHD HAFIZHU QAYYUM", "NUR WARDAH SYAQILAH BINTI MOHD ZULKIFLI", "QISYA NUR KHAIREENA BINTI MOHD HAMRY", "RAANIYA A'LANI BINTI MOHD RASHID", "SITI FARAH HUMAIMA BINTI ABDUL QAYYUM", "SITI HAJAR MARDHIAH BINTI ARIWAN", "SITI NUR AIN IZARA BINTI MOHAMAD SAIFUL BAHARI", "WAFA SYAKIRAH BINTI NOR AZLAN", "AHMAD SHAHRUL SHAFIEE BIN AHMAD SUHAIMEE", "MUHAMMAD HAIKAL BIN MOHD HELMI"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"2 AL KINDI": ["AHMAD DANISH RAYYAN BIN ABDUL KARIM", "AHMAD FAHIM BIN ABDUL MUHAIMIN", "AHMAD RAYYAN ISKANDAR BIN AHMAD MUHAIMIN", "CHE ENGKU IRSYAD RAFIQIE BIN CHE ENGKU INDRA", "IFFAT ZIYAD BIN ISKANDAR", "MOHAMMAD HARRAZ DZIKRI BIN MOHD HISHAM", "MUHAMAD KHALISH ILHAM BIN ABDUL RAZAK", "MUHAMMAD AALI MIKAIL BIN SOBRYALAISA", "MUHAMMAD ADLI SAEF BIN JAMELLUDIN", "MUHAMMAD ADYAN RIZQI BIN RUZLAN", "MUHAMMAD AFNAN NAUFAL BIN ABDUL AZIZ", "MUHAMMAD AMEER RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD ANIQ AMSYAR BIN MOHD TAMIZI", "MUHAMMAD DAIYAN RIZQIN BIN HAZIROL NIZAM", "MUHAMMAD ISYRAQ MUSAYYAD BIN MOHD HARIS", "MUHAMMAD RAYYAN ANAQI BIN MOHD FAIZAK", "SYED NUH KHAIRIL HAKIMI BIN ABDULLAH", "AINUL MIKAYLA IMANI BINTI ZAMRI", "AMNI MALIKA BINTI MOHD KAMARULZAMAN", "ASMA' BINTI MAMDUH", "NOOR JANNAH SOFIA BINTI MOHD SAFWAN SARIY", "NUFA AZZAHRA BINTI AZUAN", "NUR AISYAH ALEESA BINTI JEMMI", "NUR ALISHA SOFEA BINTI MOHD HASRUZI", "NUR AMNI HUMAIRA BINTI MOHD HAIMI", "NUR MARDHIYAH BINTI MOHAMAD ZULFADELI", "NUR MEDINA BINTI MOHD ROSLAN", "NUR WARDAH SAFIYYA BINTI MOHD ZULKIFLI", "NURUL QISTINA DAHLIA BINTI SIDI AHMAD", "RAISHA AQILAH BINTI MOHD FAIZZUL"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"2 AL RAZI": ["AFEEF HARIS BIN ANUAR", "FAID ZIYAD BIN MOHD FAIZZUL", "MUHAMAD HARRAZ HAZIQ BIN MOHD REZALI", "MUHAMMAD ADAM FAREEZ BIN MOHD FAIZ", "MUHAMMAD ADAM RAYYAN BIN FAHMI", "MUHAMMAD AHNAF HAYQAL BIN MOHD AZIZUL", "MUHAMMAD AL HAZAMI ASFRAF BIN ABDUL RAHMAN", "MUHAMMAD AMMAR ASYRAF", "MUHAMMAD ANAS ZIYAD BIN SAMZULI", "MUHAMMAD FARISH MIKHAEL BIN MOHAMED ALAM AKBAR", "MUHAMMAD FIRDAUS HAZIQ BIN MUHAMMAD HAFIZI", "MUHAMMAD HAZIQ RIZQI BIN MOHAMAD ZAINI", "MUHAMMAD IMAN SYAKIR BIN MOHAMAD HANAFI", "MUHAMMAD QARIZH BIN MUHAMMAD HAFSHAM", "PUTERA AZAFFRIEL RAMADHAN BIN MOHD AMIRUL ANHAR", "PUTRA KHALISH HAQ BIN ANUAR", "AAFIA BINTI MUHAMAD HANIF", "CHE NUR SYIFFA HANANIA BINTI CHE MOHD NOOR SUBHIE", "MARYAM SOLEHAH BINTI ZABRI", "NUR AFIA IRDINA BINTI MOHD ZULKIFLI", "NUR AILEEN MAISARAH BINTI MUHAMAD SULAIMAN", "NUR DHIA ARISSA BINTI MUHAMAD HARIS", "NUR DINA AULIYA BINTI MOHD ZAMHAM", "NUR FARAH AISYA BINTI KOLEK @ AZRUL", "NUR HANAN KHAIRA BINTI MOHD SHUKRI", "NUR HUSNINA ADWA BINTI HALIMI", "NUR INARA HANA BINTI MOHD YAAKOB", "NUR JAMRAH HAURA BINTI HIZWAN FAZRI", "NUR NAINA NADEERA BINTI MOHD SOBRE", "NUR QASEH QAISARA BINTI ABD RAZAK", "NURUL HIDAYAH AQILAH BINTI AZMAN", "UMMI SAFIYYA BINTI MOHAMAD BORHANUDIN"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"3 AL BIRUNI": ["FAYYAD IFFAT BIN FAIYRUL", "MUHAMAD IMAN AISY BIN AFTAR", "MUHAMMAD AIDIL MIKHAIL BIN MOHD SUKRI", "MUHAMMAD AMMAR DANIYAL BIN MOHD JAAFAR", "MUHAMMAD AQIFF BIN MUHAMMAD RIDHUAN", "MUHAMMAD FARIS ADRIAN BIN MUHAMMAD ADAM", "MUHAMMAD HAALIQ UZAIR BIN MOHD FAIZAL", "MUHAMMAD HADI IRSYAD BIN ASMADI", "MUHAMMAD HADIEF BIN MUHAMMAD NUZAINI", "MUHAMMAD MUAZ BIN MOHD ZULKAFLI", "MUHAMMAD NASRUL HAQ BIN MOHD KAMAL", "MUHAMMAD UWAIIS RIEZKI BIN MOHD SHAHIRAN ANUAR", "MUHAMMAD UWAIS AL QARNI BIN MOHD RAMDHAN", "MUHAMMAD ZULHAIRY BIN MOHD ZAMRI", "RAJA AFEEF AISY RIZQI BIN RAJA AZMAN", "RAZIF ARSYAD FITTRI BIN ROSLI", "AINUR ASHSYIFFA RANIA BINTI MOHD ASHROFF", "ALISHA SOFIA BINTI MOHD IZWAN HANIF", "DHIA MEDINA BINTI MOHAMAD AZWAN IFRAM", "INAS INARA AULIYA BINTI MOHD KHAIRUL IEZWAN", "NIK HUMAIRAA' IRDHINA BINTI NIK MOHD HAFIS", "NUR AIDA SAFFIYAH BINTI MUSA", "NUR AINA SOFIA BINTI NOR HISHAM", "NUR ANIS SHAZWANI BINTI ABDULLAH", "NUR DHIA UFAIRAH BINTI ABDUL RAZAK", "NUR ERRIERA FARHANA BINTI AZHAR", "NUR JANNAH BASIRUN BINTI MOHD AZRUL", "NUR NISRINA ADILA BINTI ARIF FADILLAH", "NUR SOFEA AULIA BINTI MOHD ZAMRI", "NUR WAFA SOLEHAH BINTI MOHAMAD ALY", "NURUL ADIRA DELISYA BINTI SUFIAN", "NURUL AQILA ZASKIA BINTI MOHD NAZROL", "NURUL DELISHA WARDANI BINTI ZUL HAKIM", "NURUL JANNAH BINTI MUHAMAAD FITRI", "NURUL NAJIHATUL SYUHADA BINTI KHOSIM", "NUUR IQKLIMAA BINTI MUHAMMAD", "SITI DAISHA RAIHANAH BINTI HAZIROL NIZAM", "MUHAMMAD EZZ AYDEEN ZHAFRAN BIN MOHD DASUKI"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"3 AL FARABI": ["ABU HAZIQ HUZAIFAH BIN ABU HURAIRAH", "AISH HAFIY BIN MOHD SHASRUL HASRA", "DARWISY AARYAN BIN DANISH BAARATHMOGAN", "MOHAMAD PUTERA UMAR FARHAN BIN ASRAH @ SHAFIE", "MUHAMAD AFIQ RIDWAN BIN MUHAMAD RAHMAN", "MUHAMMAD DAYYAN DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD HAFIZ IRFAN BIN MUHAMMAD RIDZAN", "MUHAMMAD HARIZ BIN MOHD HIDAYATULLAH", "MUHAMMAD IMAN DHANI BIN KHAIRUL ANWAR", "MUHAMMAD QARIZH FAYYADH BIN MOHD IZHAM", "MUHAMMAD RIFQIE THAQIFUDIN BIN SAMSUDIN", "MUHAMMAD SUFIY IZZHAN BIN MOHAMED ISMAIL", "MUHAMMAD SYARIEZ FAYYADH BIN SHAMSURI", "WAEL ANAQI BIN MOHAMAD EFFENDI", "WAN MUHAMMAD AMSYAR BIN WAN MOHD HAFIZUDDIN", "AILEEN ALIESYA BINTI MUHD AZRIE SYAZALI", "AIRA NADIYAH BINTI MOHD FUZAIMI", "CHE ENGKU NUR QASRINA DAMIA BINTI CHE ENGKU ISKANDAR", "NIK NUR ARIANA SAFIYA BINTI NIK MOHD ARIF", "NUR AAIRA ALISHA BINTI AMIRUL ASYRAF", "NUR AAIRA JAZMIN BINTI JAAFAR", "NUR ALIYA SHAHEERA BINTI ABD.AZIZ", "NUR AUFA BINTI AHMAD AZIZI", "NUR AUNI MIRZA BINTI MAZMIZAN", "NUR DHIYA RAIHANAH BINTI ROSLI", "NUR FATHIYYA AMANI BINTI MUHAMMAD SHAIFUL AMIERUL", "NUR RAISYA IMANI BT M.FAREZ IZWAN", "NUR SYIFA ANNISA BINTI MUHAMMAD ILYAS", "NUR SYIFA AQILAH BINTI MOHAMAD SHAHRUL EFFIZAN", "NURIN ALYA BINTI ZAMRI", "SITI MARYAM BINTI MOHD ASRI", "SITI NORAISYAH SYAFIA BINTI ABDUL HAFIZ", "SITI NUR ARIESHAA BINTI ROSLAN", "TENGKU AILEEN HAYANI BINTI TENGKU NURUL FAKRI", "UMI NUR ARQIELLA UMAIRAH BINTI ABDULLAH", "WAN NUR MARIAM ADRA BINTI WAN MUSTAFA"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"3 AL KINDI": ["AHMAD MUAYYAD BIN MANSOR MAJDI", "AHMAD NAQUIB BIN MUHAMMAD NAJID", "MUHAMAD AISY FAYYADH BIN MUHAMAD HAFIZI", "MUHAMAD EIJAZ ZIQRI NAZARIN BIN ABDUL KARIM", "MUHAMMAD AFIY FAKRI BIN ZUKRI", "MUHAMMAD AZFAR DANISH BIN MOHD AZLAN", "MUHAMMAD KHALEED BIN MUHAMMAD FADHIL", "MUHAMMAD NAUFAL IMAN BIN ABU TALIB", "MUHAMMAD RAYYAN FIRDAUS BIN ABDULLAH", "MUHAMMAD SYARIF ADAM BIN SAIMI", "MUHAMMAD WAFIY BIN KHAIRUL IZAT", "MUHAMMAD ZAQWAN ZAHIRULLAH BIN ABDUL ZAHIR", "MUHAMMAD ZAYYAN BIN MOHD SHAFIK", "QARIZH HILMI BIN SHARI HAMDAN", "TENGKU MUHAMMAD ADAM DANIAL AMSYAR BIN TENGKU AZLAN", "WAN MUHAMMAD ARMAN BIN WAN AZMAN", "ZUL EZHAM RAMDHAN BIN ZULHAIZAL", "HANNAH SOFIYYAH BINTI MOHAMMAD AFIQ", "NIK NUR ADIRA IZZATI BINTI KAMARUL AZUAN", "NOOR SYAFIRA BINTI ABD MALIK", "NUR AFEEYA ALEESYA BINTI NOR FADZROL", "NUR AINA BATRISYIA BINTI ABDULLAH", "NUR AIRA AQILAH BINTI ROIS", "NUR AUNI DAHLIA BINTI MOHD SYAIFFULDIN", "NUR FAHIMA ALIFA BINTI ABDUL MUHAIMIN", "NUR ZAHRA QAISARA BINTI AHMAD ZAKI", "NURIN ALYA HUMAIRA BINTI MOHD ROKMAN", "NURUL AMEENA RAUDHAH BINTI SIDI AHMAD", "NURUL IZYAN SOLEHAH BINTI MUHAMAD ABDUL HADI", "PUTERI NUR ATHYRAH AUNI BINTI MOHD ZULKARNAIN IMRAN", "PUTERI NUR HUSNA IZZARA BINTI HABIBUL INSAN", "PUTRI NUR ARRIANA DAMIA BINTI AMRAN", "PUTRI NUR BALQIS RAISHA BINTI AZNAN", "PUTRI SAYYIDA AL HURRA BINTI MOHD SHAHARUDDIN", "QHADEEJA AINNUR SAFIYA BINTI ANWAR SHAFIQ", "WAN NUR HUMAIRAH BINTI WAN MOHD ARIF AMIRUDDIN", "NUR HANAN INSYIRAH BINTI ABDUL MUEIZ"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"3 AL RAZI": ["AMSYAR RAFIQI BIN ZAHARI", "MUHAMMAD ADAM MIKAIL BIN MOHD FIRDAUS", "MUHAMMAD ADHAM BIN MOHD SHAHRUL BAHARI", "MUHAMMAD AISY RAYYAN BIN MOHD RIDZUAN", "MUHAMMAD AMSYAR RAID BIN MOHAMMAD REDZUAN", "MUHAMMAD BIN HO SEN", "MUHAMMAD EL ARYYAN BIN MUHAMMAD AZMAN", "MUHAMMAD ELYAS WAFIY BIN MOHD ADILA", "MUHAMMAD HABIB AMSYAR BIN HAFIZUL AHMA", "MUHAMMAD IKHMAL HAZIQ BIN MOHD IRWAN HAZUAN", "MUHAMMAD IRFAN BIN ABDULLAH", "MUHAMMAD NAUFAL BIN MOHD KHAIRUL NIZAM", "MUHAMMAD PUTRA HIQWAN RAYQAL BIN MOHD AFENDI", "MUHAMMAD RAYQAL RIFQIY BIN MOHD QATAMAN", "MUHAMMAD SYAMER HAIKAL BIN AWANG", "MUHAMMAD UMAR MUHAIMIN BIN SOBRYALAISA", "AIRIS DELISHA BINTI AL HADI", "AMNA NUR QAIREEN BINTI MOHD ZAMZIRO", "CHE UMMIE SAIDATUL KHATIJAH BINTI CHE ANUAR", "NIKITA NURZAHIRA BINTI MUHAMMAD NATRAH", "NORAKILA BINTI AHMAD JAMAL", "NUR AQEELA NAZIRA BINTI ROSLAN", "NUR DELISHA HUMAIRA BINTI MUHAMMAD ZUL AKRAAM", "NUR FAIQAH QURRATU AIN BINTI ABDUL FATTAH", "NUR FALISHA QAISARA BINTI MOHD FAHMI", "NUR HANANIA MIQAYLA BINTI HAIRUL ANUAR", "NUR IZZARA SOFEA BINTI MOHD ADIB", "NUR MARDHIAH SUMAYYAH BINTI MUHAMMAD SOFFIAN", "NUR NAURA AMANDA BINTI ABDUL MU'IZZ", "NUR WAHIDA NABILA BINTI SOFIAN", "NUR YASMEEN NAURA BINTI MOHD NORHAFIZAN", "NUR ZAHRA DHIYA BINTI MOHD FARID", "NUR ZAKIRAH KHALISYA BINTI MOHD ZULKARNAIN", "NURUL SYAMIMI QAISARA BINTI SHAHRUL ANUAR", "PUTRI QALISHA QISTINA BINTI MUHAMMAD JOLAKMAN", "TUAN NUR ALANIAH QHADRA BINTI TUAN ROSLEE", "ZARA HUMAIRA BINTI MOHD SHAHMARULL FAIZULL"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"4 AL BIRUNI": ["DANIAL NAUFAL BIN ABDUL HANIF SAFWAN", "IRSYAD ZIYAD BIN ISKANDAR", "MUHAMAD KHALIQ HABEEB BIN MOHD KHAIRIL", "MUHAMMAD ADAM MUKHRIZ BIN BAHARUDDIN", "MUHAMMAD AFIQ IRFAN BIN ABDUL AZIZ", "MUHAMMAD AQIL KHALISH BIN AZRUL AZUAN", "MUHAMMAD DHUHA HANNAN BIN MOHD ROSTAM", "MUHAMMAD HAIQAL DANIEL BIN ZAKARIA", "MUHAMMAD HASBULLAH BIN MOHD NAPI", "MUHAMMAD IRSYADUDDIN BIN AZMI", "MUHAMMAD NAQIB BIN AGUNG SUPRIYANTO", "MUHAMMAD RIZQI BIN SYAHRIL", "PUTERA NOAH ZAYDAN BIN ZULHELMI", "TOBARI BIN NOR AZLAN", "TUAN MUHAMMAD EMIL HARRAZ BIN TUAN MUHAMMAD MASRI", "WAN MUHAMMAD AMMAR BIN WAN AZMAN", "ADRIANA FARANISA BINTI MOHD HERISAH", "AISYA HADIJA BINTI ASRI", "ASSYIFATU HAIESHA BINTI MOHD HASDI", "FATIN SAFIYA BINTI ROSLE", "MARYAM MALEEQA BINTI MOHD ABASRI", "NOR AZRATUL DARWIYAH BINTI ZULKARNINE", "NUR AINUN HUMAIRA BINTI MOHAMMAD KHAIRUDIN ASWADI", "NUR AMEERA ADIERA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISHA MAISARA BINTI MAZLAN", "NUR DAMIA HAZWANI BINTI MOHD SHADAT", "NUR DHIA AMMARA BINTI MUHAMAD HARIS", "NUR FARISHA DIANDRA BINTI AHMAD FAZIL", "NUR FATHIA ASHEEQA BINTI MOHD ZULLY HAZREE", "NUR IZZ ZARA INARA BINTI MOHD KHAIRRUL KHITTWAN", "NUR SYAZMA BINTI ABD RASID", "NURUL JANNAH BINTI MOHD KHIROOL", "PUTERI NUR JUVTA BINTI MOHD TAMIZI", "TUAN NUR FATHIHA ARISSA BINTI TUAN MOHD FAIZAL", "UMMI HUMAIRA BINTI MOHAMAD BORHANUDIN", "WAN ATIYYAH BINTI WAN MOHAMED ASYRAF", "WAN NUR INSYIRAH BINTI WAN MOHD ARIF AMIRUDDIN"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"4 AL FARABI": ["ABDULLAH KASYAF BIN MOHD SUHAIMI", "CHE MUHAMMAD KHALISH AMZAR BIN CHE MOHD FAIZAL ANUAR", "MOHAMAD ADAM BIN KALINGGALAN", "MUHAMAD KHALISH ILMAN BIN ABDUL RAZAK", "MUHAMMAD ABBASYIR DARWISY BIN MOHD IKBAL HAKIM", "MUHAMMAD ADAM ARSYAD BIN ROSLI", "MUHAMMAD AL FATIH BIN MUHAMMAD NASRI", "MUHAMMAD AYUB LUTFI BIN MASHATA", "MUHAMMAD DANISH HASZRIQ BIN MOHD SAIFUL AZUAN", "MUHAMMAD FAQIH SHAQIMAN BIN MOHD SHAIFUDDIN", "MUHAMMAD FATEH AMIN BIN ROIS", "MUHAMMAD NAIM FITRI BIN MOHD SALEH", "MUHAMMAD NOR SYAKIR IRFAN BIN ABDUL RAHMAN", "MUHAMMAD RAFIF JAMIL BIN MOHD SABRI", "RAJA DANIAL RIZMAN ZAFRAN BIN RAJA MAHMUD", "AIN NUR AIISYAH BINTI SHARUMNIZAM", "AINUL MARDHIAH BINTI MOHAMAD TERMIZI", "AISHA ALYSHA BINTI MOHD AZIZAN", "AN'NUR FIRHANNAH EISABELLA BINTI MASRI", "CHE NUR SAFIYA HUMAIRA BINTI CHE MOHD NOOR SUBHIE", "NOR ZUHAYRA AFRINA BINTI ZULKIFLI", "NUR AIN AQILA FARHANA BINTI MAT ROSDI", "NUR AINNA SOFEA BINTI ZAINUDIN", "NUR ALESHA ADIRA BINTI MOHD KHAIRI", "NUR ALISYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ANNASYA ADRIENA BINTI MUHAMMAD RIDZAN", "NUR DELISHA QAISARA BINTI AHMAD RIDZUAN", "NUR SAFIYA MADIHAH BINTI MOHD ROSMADI", "NUR SYAHIRAH ZAHRA BINTI MOHD SHAFIE", "NUR SYAKIRAH ZAHRA BINTI MOHD SHAFIE", "NURINA NUR ZULAIKHA BINTI MOHD ZAIMI", "NURJANNAH FITRIAH BINTI MOHD FARIS FAKHRULLAH", "PUTERI NUR HANI AZZAHRA BINTI HAFIZUL AHMA", "PUTRI NUR AISYA AMANI BINTI AMRAN", "RASYIQAH TIHANI BINTI MOHD ROZIE JEFRI", "SAIDATUL AISYAH BINTI SANSURI", "UMMUL KHADEEJAH BINTI MOHD AZMI"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"4 AL KINDI": ["AHMAD ANEEQ FIRMAN BIN MOHD RAZDI", "CHE MUHAMMAD KHALEEF AMSYAR BIN CHE MOHD FAIZAL ANUAR", "HARRAZ RYQAL BIN AHMAD FADZELIN", "IRSYAD FAIDHI BIN ISMARUDIN", "IZZUDIN AKMAL BIN MOHD AMRAN", "MUHAMAD DANIAL BIN MOHD AMRI", "MUHAMAD KHALISH IRFANUDIN BIN SAMSUDIN", "MUHAMMAD ADAM RAYYAN BIN MOHD ZAMRI", "MUHAMMAD AKIF MIRZA BIN MOHD HANIFF", "MUHAMMAD AMMAR SUFI BIN MOHD SIDEK", "MUHAMMAD EL ARFFAN BIN MUHAMMAD AZMAN", "MUHAMMAD FARIS BIN MOHD ASRI", "MUHAMMAD YUSUFF BIN MOHD ASRI", "PUTRA KASYFUL HAQ BIN ANUAR", "WAN MOHAMMAD FAHIM BIN WAN MOHD. FADHLI", "ZIYECH SHAQIRI BIN KHAIRUD DIN", "AFEEYA AZHARA BINTI MUHD AZRIE SYAZALI", "AISYAH ALEESYA BINTI MOHD HAIRUDIN", "NOR ARIANA QAIRA BINTI MOHD WAN ABDUL WAHAB", "NUR AMEERA ADIELA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISSA ARWA BINTI CHE ISMAIL", "NUR ARISSA SAFIYYA BINTI MOHD RAZALI", "NUR AYRAA QAISARA BINTI ABDULLAH", "NUR DARWISHA MAISARA BINTI MAZLAN", "NUR IFFA DELISHA BINTI SHARIZAN", "NUR INSYIRAH BINTI KARIM", "NUR IRDINA SOFEA BINTI ABDUL KHALID", "NUR JANNAH BINTI RAZAK", "NUR KHAYRA IRDINA BINTI MOHD KHAIRULIZWAN", "NURUL HASNA HUMAIRA BINTI KASA", "PUTRI NUR HIDAYATUL ERLISA BINTI MOHAMAD HAFIZ", "SAIDATUL NUR QHADEEJA BINTI MOHD SUFIAN", "SHAFAA NUR AZZAHRA BINTI MOHD SHAMSURI", "SITI NUR DHALIA ARFINA BINTI MOHD NOR ASYHRAF", "ZARITH DIYANDRA ROSHA BINTI ABDULLAH", "ADHAWIYATUL RAHMAH BINTI AHMAD"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"5 AL BIRUNI": ["AHMAD ALIF NAZRULLAH BIN MOHD KHAIRI AZLI", "AHMAD AMAR ARRFAN BIN MOHD KHAIRUZAM @ AZROL", "AHMAD ARSHAD BIN AHMAD RIDWAN", "AMZAR ZAFRI BIN AMREE", "ASYRAF FIRDAUS BIN ABDULLAH", "CHE ADAM ALIF BIN CHE ANUAR", "MUHAMMAD AFFAN DARWISY AISY BIN MOHD IZUAN", "MUHAMMAD AIYRUL SYAFIQ BIN KAMARUDDIN", "MUHAMMAD ARYAN BIN MOHD IKHMAL", "MUHAMMAD FAIZ ZAQWAN BIN MOHD RIZWAN", "MUHAMMAD HAZIQ SYAHMI BIN MOHD ROSLI", "MUHAMMAD HAZRIN BIN MUHAMMAD NATRAH", "MUHAMMAD IDRIS BIN MOHD RAMDHAN", "MUHAMMAD IMAN SOLIHIN BIN MUHAMAD ABDUL HADI", "MUHAMMAD IRFAN BIN MD YASROL", "MUHAMMAD IWADH MULHIM BIN MOHD HARIS", "MUHAMMAD SYAMIL HADIF BIN NASROL IHHAM", "MUHAMMAD SYAWAL BIN MUSTAFFA", "MUHAMMAD THAQIF BIN MOHD AZLAN", "MUHAMMAD YUSOF BIN GHAZALI", "MAIZATUL ADAWIYAH BINTI ADUMI @ KAMARUDIN", "NUR ALYA QALISYA BINTI MOHD ZULFADLI", "NUR ANNISA BINTI MAT YASIN", "NUR DHIA QAIREEN BINTI MOHD ROSTAM", "NUR HANA SALSABILA BINTI MUHAMMAD ZULFAHMY", "NUR HANA SYAURA BINTI MOHD SAIFUDDIN", "NUR IRTIYAH DZAKIYAH BINTI MOHAMED ZUHIR", "NUR MAISARAH BINTI MOHAMAD ZULFADELI", "NUR MARYAM AQILA BINTI ABDUL RAHIM", "NUR SOFIYYAH AZZAHRA BINTI RAZAK", "NUR ZAHRA NAZIHA BINTI MOHD NORHAFIZAN", "NURUL AISYAH DAMIA BINTI SUFIAN", "NURUL ALEESYA DAMIA BINTI MOHD SUKRI", "PUTRI NUR AYUNIE NATASHA BINTI MOHD AFENDI", "SYAHIDA TASNIM BINTI SUMANTRI", "SYAHMINA BINTI IZANI", "WAN NOR FARISYHA DIANA BINTI WAN GHAFAR", "NUR FAZIAH BT MOHD FAUZI", "MUHAMMAD AQIL ZAKWAN BIN ABDULLAH"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"5 AL FARABI": ["AAKIF ZAFWAN BIN ABDULLAH", "AMMAR ZAFRAN BIN MOHD KHAIRI", "MUHAMAD AISH DANIYAL BIN MUHAMAD HARIS", "MUHAMAD FATTAH NAJMI BIN ABDUL FATTAH", "MUHAMAD YUSOF BIN ABDUL FATTAH", "MUHAMMAD ADAM ARSYAD BIN MOHD HAFIZ", "MUHAMMAD ADAM ASRAF BIN NOR FADZROL", "MUHAMMAD ADWA AFIQ BIN MUHD FADZLI", "MUHAMMAD AQIFF FATTAHUALLAH BIN MAT JID", "MUHAMMAD ASYRAAF JABRULLAH BIN MOHD ASNAWI", "MUHAMMAD DANISH BIN MOHD AMRI", "MUHAMMAD DARWISY BIN ASHAARI", "MUHAMMAD FATAH BIN MOHD FAIZAL", "MUHAMMAD HAZIQ IQBAL BIN MOHAMAD ZAINI", "MUHAMMAD ILHAM SOLEH BIN RAMZU NAZRI", "MUHAMMAD IZZ ASFA BIN MOHD NAZARUDI", "MUHAMMAD ZACK ZAFFRIEL BIN MOHD ZULKIFLI", "MUHAMMAD ZULHUSNI BIN MOHD RAHIM", "NAIL ANAQI BIN KHAIRUMIZAN", "TENGKU IMAN MUIZZ ADHA BIN TENGKU AZHAR", "AINUL MARDHIAH BINTI MOHD HAFIZUL", "AISYA UMAIRAH BINTI ABDUL RAHMAN", "AMARRA AFINA BINTI MOHD EMMAR ZAMSHAH", "EL ZAHRA NAAILA BINTI MOHD ADILA", "HUSNA HUMAYRAA BINTI HASWAWI", "NUR 'AAQILAH AMNI BINTI AHMAD BAZLI", "NUR AINA DALISYA BINTI MOHD NIZAM FAZRUL", "NUR AINATUL HUSNA BINTI AZLAN", "NUR AMNA SAFIAH BINTI JAMELLUDIN", "NUR DHIA ADRIANA BINTI MOHAMAD KHAIRUDDIN", "NUR FARHANA HANISAH BINTI AZHAR", "NUR FATHIAH AMANI BINTI MOHD ROSNI", "NUR QAIREEN IMANI BINTI MOHD SUHAIRY", "NUR RAUDHAH AMANI BINTI ROSDI", "SITI NUR AINA NADHIRAH BINTI ASMAWI", "SITI ROSMARIYANI BINTI ROSMAN", "TENGKU AINA HUSNA BINTI TENGKU NURUL FAKRI", "TUAN NUR AZZALEA QAIREEN BINTI TUAN ROSLEE"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"5 AL KINDI": ["AHMAD DANIAL HAZEEQ BIN AHMAD BARDAIN", "AHMAD DANISH IKHWAN BIN CHHEANG RIN", "AHZA MUJAHID BIN MOHD KAMARULZAMAN", "MOHAMAD ZARIF QUSYAIRI BIN AHMAD ZAKI", "MUHAMAD ADAM ARIQ BIN ABDULLAH", "MUHAMAD RAFIUDDIN BIN MUHAMAD RAHMAN", "MUHAMMAD ALIF DANIAL BIN MOHD AZLAN", "MUHAMMAD ALIF HAIDAR BIN MOHD ZAHID", "MUHAMMAD AMMAR KHALISH BIN ABDULLAH", "MUHAMMAD AMMAR RAYYAN BIN MOHD HAMIZI", "MUHAMMAD AMMAR ZAFRAN BIN MOHD SYAHRIZAI", "MUHAMMAD ARJUNA RIZQIN BIN MOHD RAZREEN", "MUHAMMAD ASHRAFF BIN ZULKIFLI", "MUHAMMAD DANIEL DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD FAKHRI BIN ROSMADI", "MUHAMMAD HARIZ ADRIAN BIN ASMADI", "MUHAMMAD ISYRAF ZAYYAN BIN MOHD ROSLAN", "MUHAMMAD MUNIFF MUHAIMIN BIN ABU HASSAN", "MUHAMMAD NAQIB AL AMIN BIN MOHD NIZAM", "MUHAMMAD NUR LUTFI BIN ABDUL HAKIM", "MUHAMMAD RAFIQ ZAFRAN BIN MOHD RIZUAN", "MUHAMMAD RAYYAN IKHWAN BIN MOHD JALANI", "ADYRA AZZAHRA BINTI AZMADI", "CHE KU ESHAL AZZALEA BINTI CHE KU ALIAS", "DANISHA ELRIEKA SOFIA BINTI ABDUL KARIM", "HANIA SYAKIRA BINTI ABDULLAH", "NUR AIN HUMAIRA BINTI MAZLAN", "NUR ANEESHA BALQIS BINTI AHMAD", "NUR FAKHIRA AMANI BINTI MOHD FAHMI", "NUR FARIESHA ADRIANA BINTI ABDUL AZIZ", "NUR FATHIYATUSH SHAKIRA BINTI SUHAIDI", "NUR NADIRA HUDA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SAFIYYA MAISARA BINTI ABDUL FATTAH", "NURDHIA ARISHA BINTI ZULKIFLI", "NURUL AMRA NASRINA BINTI ZAIDI", "PUTERI NUR UMAIRAH BINTI MOHD AMIRUL ANHAR", "RAJA NORAMMARA ARISSA BINTI RAJA MOHAMAD AZLAN", "SITI DEWINA RAMADHANI BINTI ABDUL SALAM", "SITI ZARINA BINTI MOHD ZAMRI", "DHIA QAISARAH SOLEHAH BTINTI MOHD HELMI"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"6 AL BIRUNI": ["ATIQURRAHMAN BIN MOHD YUSOFF", "FAKKUAN NAZREEN BIN MOHD NOR BADRUL HISHAM", "IBHAR FITRI BIN ISMARUDIN", "MUHAMAD AZFAR AISY BIN AFTAR", "MUHAMAD YUNUS BIN ABDUL FATTAH", "MUHAMMAD ADAM SAIFULLAH BIN SAMZULI", "MUHAMMAD ADIB ADWA BIN CHE ISMAIL", "MUHAMMAD AKID BIN SUTILAN", "MUHAMMAD AKIF HAKIMIE BIN MOHD REMI", "MUHAMMAD AMZAR UZAIR BIN SHARUMNIZAM", "MUHAMMAD AQLAN WILDAN BIN SALADIN", "MUHAMMAD DANIAL HAZIQ BIN MOHD KHAIRRUL KHITTWAN", "MUHAMMAD FARIS DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAZIQ RAYYAN BIN SHAHRUL ANUAR", "MUHAMMAD RAYHAN BIN MOHD SABRI", "MUHAMMAD SYARIF DARWISY BIN MOHD SYAIFFULDIN", "NUR IMAN HAKIMI BIN NORAWI", "TUAN MOHAMMAD IBNU AFFAN BIN TUAN MOHD SANUSI", "WAN ZIQRI HAKIM BIN WAN ZULKIFLI", "AMNAA NUR SALEEMA BINTI ABDUL JALIL", "AMNII NUR AMEENA BINTI ABDUL JALIL", "ARISYA IZARA BINTI ABDUL RAUFF", "CHE ENGKU NUR QASEH ARISSA BINTI CHE ENGKU ISKANDAR", "HASYA HAFIYA BINTI MOHD SHASRUL HASRA", "KHADEEJA AINA BINTI HASNAN", "MAWAR NURHUMAIRA BINTI ABU BAKAR", "NORDANILA BINTI ABDULLAH", "NUR FATHIA AQILAH BINTI KOLEK @ AZRUL", "NUR FITRI NATASYA BINTI SOFIAN", "NUR HANANIA UZMA BINTI MUHAMAD HAFIZI", "NUR HANIS ARISSA BINTI ABDUR RAHMAN", "NUR INTAN FARHANA BINTI ZAKARIA", "PUTERI FARIZA DAYANA BINTI SUTRISNO PRAPTO PARDI", "PUTRI AS SYAFA ATHIRAH BINTI MOHD RAZDI", "QHADEEJA AINNUR AISYA BINTI ANWAR SHAFIQ", "WAN NUR ARIANA BINTI WAN MOHD NASIR", "NUR NADIRAH BINTI ABDUL MUAEIZ"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"6 AL FARABI": ["ARMAAN YOUSSEF BIN AMIRUDDIN", "DANNIZ FIRDAUSY HASSAN BIN TATUH", "MUHAMMAD AFIQ KHALIF BIN MOHD SAIFUL", "MUHAMMAD AMMAR ARYAN BIN MOHD KHAIRI", "MUHAMMAD AMMAR RIZQI BIN ROSDI", "MUHAMMAD AMZAR IKHWAN BIN MOHD KHAIRUL ANUAR", "MUHAMMAD ASHSHAFF RAQIB BIN MOHD ASHROFF", "MUHAMMAD EIMRAN ARIEF BIN MUHAMAD NASRI", "MUHAMMAD HARRAZ UKAIL BIN MOHD FAIZAL", "MUHAMMAD IBNU QUSYAIRI BIN MOHD ARIS", "MUHAMMAD ISKANDAR BIN SYAHRIL", "MUHAMMAD NADEEM IQBAL BIN ABDUL RAFI", "MUHAMMAD NAUFAL AL AMIN BIN MOHD NIZAM", "MUHAMMAD RAYYAN RIZQIN BIN MOHD QATAMAN", "MUHAMMAD RIZQY FAKHRURRAZI BIN MOHD SAFWAN SARIY", "MUHAMMAD SOLIHIN BIN ZAINUDDIN", "NASRI BIN THIRADED NETH", "NIK AHMAD AMIR FIRDAUS BIN NIK SAMSI ANUAR", "RAJA NORFARESH RIEZQIN BIN RAJA ALI", "TUAN MUHAMMAD FATIH AZRI BIN TUAN MOHD FAIZAL", "ADRA NUR QAIREEN BINTI MOHD ZAMZIRO", "ARIANA ALISHA BINTI MOHD AMRAN", "NOR ELLFALINA BINTI BAHARUD DIN", "NUR AIN DAMIA BINTI ROSLE", "NUR ALISHA QAISARA BINTI ROSLAN", "NUR AMNI HANANI BINTI MOHD REZUAN", "NUR DHIA ADELIA BINTI MOHD ZAMHAM", "NUR IRIS RANIA BINTI MOHD SAIFULLAH", "NUR RANIA FARIHAH BINTI MOHD FAREZ IZWAN", "NURUL AIN ZAHRA BINTI ZAIDI", "QHAIRA HUSNA BINTI SHARI HAMDAN", "RUZILA BINTI MOHD RIDZUAN", "SYASYA QAISARA BINTI TUAN SHUHAIRIZAM", "SYULAIQA BATRISYA BINTI SULAIMAN", "TENGKU NUR KHASIF RANIA BINTI KAMARUL AZUAN", "UMI NUR ARSYIKIN NAJWAL BINTI ABDULLAH", "NUR ZARA SEDRISHA BINTI MOHD FIRDAUS AZAM"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"6 AL KINDI": ["AMMAR ZIQRI BIN ZAHARI", "MOHAMAD HANIF BIN MOHAMAD FAIZIE", "MOHAMAD MIKAIL BIN JAMIL", "MUHAMMAD ADAM BIN ASHAARI", "MUHAMMAD ADRIAN MIKHAIL BIN MOHD ABASRI", "MUHAMMAD AFIRASH IKHWAN BIN MOHD IRWAN HAZUAN", "MUHAMMAD AIDIL HARITH BIN HAIRULAZAM", "MUHAMMAD AIZAT AMZAR BIN MOHD YAAKOB", "MUHAMMAD AMIN SYAZHAN BIN BADRUL HISYAM", "MUHAMMAD AQIF FITRI BIN MOHD ZAMRI", "MUHAMMAD ARFA HASIF BIN MOHD SHAMSURI", "MUHAMMAD ASYRAF RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD FARIZ HAKIMIE BIN ALIAS", "MUHAMMAD IQKLAS AZIQ BIN MUHAMMAD", "MUHAMMAD NOR IKHWAN BIN ABDULLAH", "MUHAMMAD SHAH AIDIL BIN SULAIMAN", "MUHAMMAD SHAMRIRULLOH BIN MUHAMMAD SAMRI", "MUHAMMAD THAQIF AFKAR BIN RUZLAN", "RAJA AQIL AISY HAFIDH BIN RAJA AZMAN", "AMMARA MALAEKA BINTI ABDUL 'AZHIM", "NUR AINA MAISARAH BINTI MUHAMMAD HAFIZAN", "NUR BATRISYA MAISARA BINTI MAZLAN", "NUR IMAN WADHIHAH BINTI PAXRURAZI", "NUR NAURAH ASSYIFAA BINTI ISMAIL", "NUR RAISHA AMNI BINTI MOHD RASHID", "NUR SYAFA AQILA BINTI ABDUL MU'IZ", "NUR SYAZA NABILAH BINTI MUHAMAD SHAZUAN", "NURUL AIN BATRISYIA BINTI ZULNIZAN", "NURUL SYAZWANI HUSNA BINTI YAHYA", "PUTERI NUR DAMIA MAISARAH BINTI MOHAMAD HAFIZ", "PUTRI NUR AIN NATASYA BINTI AMRAN", "PUTRI NUR SYAWAL DARWISYA BINTI MOHD HISHAM", "WAN NUR ALEEYA MAISARA BINTI WAN MOHD HAFIZUDDIN", "WAN NUR ANEESA BINTI WAN AZMAN", "WAN NUR MAWARDAH SAFIYYA BINTI WAN MUSTAFA", "NUR QAIRINA AMANI BINTI MOHD JUNAID"]</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const wordDatabase = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"Noun": ["Durian", "School", "Laptop", "Canteen", "Teacher", "Table"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"Verb": ["Jump", "Sweep", "Write", "Listen", "Speak", "Clean"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"Adjective": ["Spicy", "Tall", "Smart", "Happy", "Hungry", "Beautiful"],</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"Preposition": ["Under", "Above", "Behind", "Beside", "Inside", "Outside"]</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// ============================================</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// 2. GAME LOGIC</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// ============================================</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let state = {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>isPlaying: false,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>score: 0,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>lives: 3,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>targetCategory: "Noun",<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>heroPos: {x:100, y:300},<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>keys:{},<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>entities:[],<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossActive: false,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossHP: 5,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossY: 300,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossDir: 1,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>user: {name:"", class:""},</p>
-<p class="p1"><span class="Apple-converted-space">            </span>levelSpeed: 1<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const els = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>login: document.getElementById('login-screen'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>start: document.getElementById('start-screen'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>over: document.getElementById('game-over-screen'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hero: document.getElementById('hero'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>classSel: document.getElementById('class-select'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>nameIn: document.getElementById('name-input'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>dataList: document.getElementById('student-names'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>saveStatus: document.getElementById('save-status'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossContainer: document.getElementById('boss-container'),</p>
-<p class="p1"><span class="Apple-converted-space">            </span>bossHPFill: document.getElementById('boss-hp-fill')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Populate Class Dropdown</p>
-<p class="p1"><span class="Apple-converted-space">            </span>Object.keys(schoolData).forEach(cls =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const opt = document.createElement('option');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>opt.value = cls; opt.innerText = cls;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.classSel.appendChild(opt);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Create Mission Buttons</p>
-<p class="p1"><span class="Apple-converted-space">            </span>Object.keys(wordDatabase).forEach(cat =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const btn = document.createElement('button');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>btn.className = 'btn';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>btn.innerText = cat;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>btn.onclick = () =&gt; startGame(cat);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('category-buttons').appendChild(btn);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('keydown', e =&gt; state.keys[e.key] = true);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('keyup', e =&gt; state.keys[e.key] = false);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(loop);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- LOGIN LOGIC ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function populateNameList() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cls = els.classSel.value;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.dataList.innerHTML = '';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.nameIn.value = '';</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(cls &amp;&amp; schoolData[cls]) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.nameIn.disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>schoolData[cls].forEach(name =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const opt = document.createElement('option');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>opt.value = name;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>els.dataList.appendChild(opt);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.nameIn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleLogin() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cls = els.classSel.value;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const name = els.nameIn.value;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Validate</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(!cls || !name) { alert("Please select Class and Name!"); return; }</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Check if name is roughly in the list (allows for minor typing case diffs)</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const validNames = schoolData[cls];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const match = validNames.find(n =&gt; n.toUpperCase() === name.toUpperCase());</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!match) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(!confirm("Name not found in list. Play as Guest with this name?")) return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.user.class = cls;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.user.name = match || name;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('player-name-display').innerText = state.user.name.split(' ')[0]; // Show first name only</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('welcome-name').innerText = state.user.name;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.login.classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.start.classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function startGame(cat) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.targetCategory = cat;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.score = 0;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.lives = 3;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.bossActive = false;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.entities = [];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.levelSpeed = 1;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.isPlaying = true;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.bossContainer.style.right = "-300px";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.start.classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.over.classList.add('hidden');</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('target-display').innerText = cat;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('score-display').innerText = "0";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('lives-display').innerText = "3";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- CORE LOOP ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function loop() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.isPlaying) update();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(loop);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function update() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Hero</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const speed = 6;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.keys.ArrowUp &amp;&amp; state.heroPos.y &gt; 0) state.heroPos.y -= speed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.keys.ArrowDown &amp;&amp; state.heroPos.y &lt; window.innerHeight-60) state.heroPos.y += speed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.keys.ArrowRight &amp;&amp; state.heroPos.x &lt; window.innerWidth-80) state.heroPos.x += speed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.keys.ArrowLeft &amp;&amp; state.heroPos.x &gt; 0) state.heroPos.x -= speed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.hero.style.top = state.heroPos.y + 'px';<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.hero.style.left = state.heroPos.x + 'px';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Boss Logic</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.bossActive) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>state.bossY += 2 * state.bossDir;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(state.bossY &gt; window.innerHeight - 200) state.bossDir = -1;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(state.bossY &lt; 50) state.bossDir = 1;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.bossContainer.style.top = state.bossY + 'px';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Spawn</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const spawnRate = state.bossActive ? 0.05 : 0.02;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(Math.random() &lt; spawnRate) spawnWord();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Entities</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.entities.forEach((ent, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ent.x -= (4 + state.levelSpeed);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>ent.el.style.left = ent.x + 'px';</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Collision</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(isColliding(els.hero, ent.el)) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if(ent.cat === state.targetCategory) {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>handleCorrectHit();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>handleWrongHit();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>ent.el.remove();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>state.entities.splice(i, 1);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else if(ent.x &lt; -200) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>ent.el.remove();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>state.entities.splice(i, 1);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function spawnWord() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isTarget = Math.random() &gt; 0.4;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cats = Object.keys(wordDatabase);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cat = isTarget ? state.targetCategory : cats[Math.floor(Math.random()*cats.length)];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const word = wordDatabase[cat][Math.floor(Math.random()*wordDatabase[cat].length)];</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const div = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>div.className = 'word-bubble';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>div.innerText = word;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Visuals</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(cat === state.targetCategory) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>div.style.backgroundColor = '#C8E6C9';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>div.style.border = '2px solid green';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>div.style.backgroundColor = '#FFCDD2';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>div.style.border = '2px solid red';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Position</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let startY = Math.random() * (window.innerHeight-50);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let startX = window.innerWidth;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.bossActive) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>startY = state.bossY + 100; // Shoot from boss</p>
-<p class="p1"><span class="Apple-converted-space">                </span>startX = window.innerWidth - 200;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>div.style.top = startY + 'px';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>div.style.left = startX + 'px';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('game-container').appendChild(div);</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.entities.push({ el: div, x: startX, cat: cat });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function isColliding(a, b) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const r1 = a.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const r2 = b.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>return !(r1.right &lt; r2.left || r1.left &gt; r2.right || r1.bottom &lt; r2.top || r1.top &gt; r2.bottom);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- GAME EVENTS ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleCorrectHit() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.score += 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('score-display').innerText = state.score;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.bossActive) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>state.bossHP--;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.bossHPFill.style.width = (state.bossHP/5)*100 + "%";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(state.bossHP &lt;= 0) endBoss();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Trigger Boss every 50 pts</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(state.score &gt; 0 &amp;&amp; state.score % 50 === 0) startBoss();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleWrongHit() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.lives--;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('lives-display').innerText = state.lives;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.hero.style.background = 'black';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; els.hero.style.background = 'linear-gradient(to right, #D32F2F, #B71C1C)', 100);</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.lives &lt;= 0) gameOver();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function startBoss() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.bossActive = true;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.bossHP = 5;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.bossHPFill.style.width = "100%";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.bossContainer.style.right = "50px";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Flash Effect</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.body.style.backgroundColor = "#333";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; document.body.style.backgroundColor = "", 200);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function endBoss() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.bossActive = false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.bossContainer.style.right = "-300px";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.levelSpeed += 0.5;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(state.lives &lt; 3) { state.lives++; document.getElementById('lives-display').innerText = state.lives; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function gameOver() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.isPlaying = false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>els.over.classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('final-score').innerText = state.score;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>saveDataToGoogleSheets();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- GOOGLE SHEETS SAVE ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function saveDataToGoogleSheets() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>els.saveStatus.innerText = "Error: Google Sheet URL not set in code.";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const formData = new FormData();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>formData.append('name', state.user.name);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>formData.append('class', state.user.class);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>formData.append('score', state.score);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })</p>
-<p class="p1"><span class="Apple-converted-space">                </span>.then(response =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>els.saveStatus.innerText = "✅ Score Saved to Dr. Saufi's Database!";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>els.saveStatus.style.color = "#69F0AE";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>els.saveStatus.classList.remove('blink');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>})</p>
-<p class="p1"><span class="Apple-converted-space">                </span>.catch(error =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>els.saveStatus.innerText = "⚠️ Offline Mode (Saved locally)";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+    <div id="game-container">
+        <div id="ui-layer">
+            <div class="hud-panel">👤 <span id="player-name-display">Guest</span></div>
+            <div class="hud-panel">❤️ <span id="lives-display">3</span></div>
+            <div class="hud-panel">⭐ <span id="score-display">0</span></div>
+            <div class="hud-panel">🎯 <span id="target-display">TASK</span></div>
+        </div>
+
+        <div id="hero" style="top: 50%; left: 100px;">HERO</div>
+        
+        <div id="boss-container">
+            <div id="boss-sprite">👾</div>
+            <div id="boss-hp-bar"><div id="boss-hp-fill"></div></div>
+        </div>
+
+        <div id="login-screen" class="screen-overlay">
+            <h1>Dr. Saufi's<br><span style="color:#FFEB3B">English Hero</span></h1>
+            <div class="login-box">
+                <label>1. Select Your Class:</label>
+                <select id="class-select" onchange="populateNameList()">
+                    <option value="">-- Choose Class --</option>
+                </select>
+
+                <label>2. Find Your Name:</label>
+                <input type="text" id="name-input" list="student-names" placeholder="Type your name here..." disabled autocomplete="off">
+                <datalist id="student-names">
+                    </datalist>
+
+                <button class="btn" style="width:100%; margin: 20px 0;" onclick="handleLogin()">Start Game</button>
+            </div>
+        </div>
+
+        <div id="start-screen" class="screen-overlay hidden">
+            <h2>Welcome, <span id="welcome-name" style="color:#4FC3F7">Hero</span>!</h2>
+            <p>Dr. Saufi needs you to collect:</p>
+            <div id="category-buttons"></div>
+        </div>
+
+        <div id="game-over-screen" class="screen-overlay hidden">
+            <h1 style="color: #FF5252;">GAME OVER</h1>
+            <h2>Final Score: <span id="final-score">0</span></h2>
+            <div id="save-status" class="blink">Saving score to database...</div>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 1. DATA: STUDENT DATABASE (CLEANED)
+        // ============================================
+        const schoolData = {
+            "1 AL BIRUNI": ["ABDUL RAYYAN MIKAIL BIN ABDUL RASHID", "AHMAD DANISH AQEEL BIN AHMAD BARDAIN", "KHALISH NAUFAL BIN KHAIRUL ARMAN", "MOHAMAD AMMAR IRFAN BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZULFAN NAIM KHALISH BIN MOHD ZULKARNAIN", "MUHAMAD AFEEF ILYAS BIN MUHAMAD GHADAFFI", "MUHAMAD NAQIB RASYDAN BIN MOHAMAD RASYID", "MUHAMMAD ADYAN NAUFAL BIN ABDUL HANIF", "MUHAMMAD AISY FIRDAUS BIN MUHAMAAD FITRI", "MUHAMMAD DAYYAN ZAFFRAN BIN ABDULLAH", "MUHAMMAD FIRAS RIZQI BIN MUHD FADZLI", "MUHAMMAD IRFAN NAUFAL BIN MUHAMMAD ILYAS", "MUHAMMAD NUH RIFQI BIN AHMAD BAZLI", "MUHAMMAD RIZWAN HAQIMIE BIN ABDUL MUZIL", "MUHAMMAD UMAR AL-KHATTAB BIN MUHAMMAD FIRDAUS", "MUHAMMAD UMAR SHARIF BIN ZUL", "WAN MUHAMMAD AMZAR BIN WAN AZMAN", "ALYA ADRIANA BINTI MOHD RIZUAN", "HANA MEDINA BINTI MOHD. AIMAN NURHAKIM", "KYAYRA NADEERA HAURA BINTI MOHAMAD KHAIRUL NIZAM", "NAURA AISYAH BINTI MOHD ASRI", "NOR AIRA JANNAH BINTI MOHD ASNAWI", "NUR AAIRA QAISARA BINTI MOHD RIZAL", "NUR AIRA AMANI BINTI ALIAS", "NUR ASSYIFA HANEEM BINTI MOHD IKBAL HAKIM", "NUR AYRA AISYAH BINTI MOHD KHAIRI", "NUR FATHIA NAYLA BINTI MUHAMMAD YUSRI", "NUR HUMAIRA BINTI MUHD LUQMAN", "NUR JASMINE HANA MEDINA BINTI HIZWAN FAZRI", "NUR QALESYA BINTI YUSOF", "NUR SOFEA MEDINA BINTI MOHD SYUFIAN", "NURDIYANA AWFIYAH BINTI ZULKIFLI", "PUTERI EILYANA BINTI MUHAMMAD SHAFID", "ROS AMIRA SAFIYA BINTI ABDULLAH", "SITI SABARISHA BINTI MOHD SALEH", "SITI NORAAFIYAH INSYIRAH BT ABU HASSAN"],
+            "1 AL FARABI": ["ADAM DANIEL BIN MOHD SUKRI", "DANIAL NUQMAN BIN ABDUL HANIF SAFWAN", "MOHAMAD MIQAEL BIN MOHAMAD FAIZIE", "MOHAMAD ZULFAQAR BIN MOHAMAD NAKIAH L", "MUHAMAD ANAS MIKAIL BIN MUHAMAD NASSRUDIN", "MUHAMMAD ADAM BIN ABDUL RAUFF", "MUHAMMAD ALIFF NAUFAL BIN ZULNIZAN", "MUHAMMAD AQIB BIN MOHD ZAMZIRO", "MUHAMMAD ELMAN AUS BIN MOHD ADILA", "MUHAMMAD IMAN NAUFAL BIN ABDUL FATTAH", "MUHAMMAD IZZ AYAAZ BIN MOHD NAZARUDI", "MUHAMMAD SYAKIR NASRAN BIN MUHAMAD SHAZUAN", "NOAH MIQAEL BIN MOHAMMAD KHAIRIL MUZAFFAR", "NOR AISY ZUFAR BIN NOR ZULHAIRIE", "NUR MUHAMMAD AAFI MUSLIM BIN ARIF FADILLAH", "WAN MUHAMMAD HARITH BIN WAN MOHD FAHMI NASRI", "ZAYYAN AAKIF BIN MOHAMAD ZULAZLAN", "ADRIANA AMANDA A/P JEFFRY", "ATHIA ZARA BINTI MOHD ZAKI", "HAURA HASNA BINTI MOHD SHASRUL HASRA", "MARYAM FATHIYYAH BINTI ABD ZUKHRUFUDDIN", "NIA QALESYA BINTI MOHAMAD AZWAN IFRAM", "NOOR SYAFILA NATASYA BINTI ABD MALIK", "NUR AFEEYA FAQIHAH BINTI MOHAMAD FARID", "NUR AIREEN MEDINA BINTI AHMAD AIZAT", "NUR ATIYA AILEEN BINTI MOHD SOBRE", "NUR AZZAHRA SAFIYYAH BINTI MOHD SIDEK", "NUR FATIHAH AMALIA BINTI MOHD ROSNI", "NUR HUMAIRA BINTI ABDUL MUEIZ", "NUR QISYA ZAHRA BINTI ROIS", "NUR SYAHIRAH SOLEHAH BINTI BADRUL HISYAM", "NURIN AMNA HUWAIDA BINTI MOHD ROKMAN", "QHADEEJA AINNUR MEDINA BINTI ANWAR SHAFIQ", "SITI AFIA MIKAYLA BINTI SH.FIZULREZUAN", "TENGKU TEH ANNISAA BINTI TENGKU MOHD IKMAN HANIFF", "WAN AISYAH NABILAH BINTI WAN MOHAMAD HAFIQ", "WAN IMAN SAFA BINTI WAN MOHAMMAD SHUKRI"],
+            "1 AL KINDI": ["ADAM MUQRI BIN MOHD ZAIMI", "AHMAD NAUFAL BIN AHMAD NASRI", "AR RAYYAN MAULANA BIN ABDUL SALAM", "MOHAMAD PUTERA RAMADHAN BIN ASRAH @ SHAFIE", "MOHAMMAD HAFIZOL BIN MOHD SHAIFUDDIN", "MUHAMAD ANAS MIKHAIL BIN ABDULLAH", "MUHAMMAD ADAM FARIS BIN MUHAMMAD JEFRI", "MUHAMMAD AIDAN KHALISH BIN MOHD WAN ABDUL WAHAB", "MUHAMMAD ALIF AIDAN BIN MPHD AIMAN", "MUHAMMAD AZRAIKAL BIN MOHD AFFENDI", "MUHAMMAD FARHAN DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAYYAN BIN MOHD HIDAYATULLAH", "MUHAMMAD KHAZEEN BIN MUHAMMAD FADHIL", "MUHAMMAD RIDHWAN BIN MOHD ASRI", "MUHAMMAD SYAZWAN HAIKAL BIN YAHYA", "NASHRULLAH WAFI BIN MOHD KHAIRULDDIN", "NIK MUHAMMAD AMJAD BIN NIK MOHD ARIF", "YURI BIN MOHD YUNUS", "AMIRA SYAFIRA BINTI UMAR", "CHE UMMIE SAIDATUL AMINAH BINTI CHE ANUAR", "DEANDRA NUR AMMARA BINTI DANISH BAARATHMOGAN", "INARA NUR AYESHA BINTI CHE MOHD FISWAN", "MARYAM NUR MEDINA BINTI ABU BAKAR", "NOOR IZZARA IMELDA BINTI MOHD SAFWAN SARIY", "NOR HANA SOFEA BINTI FADZLI SHAH", "NUR AFEEYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ALYA FARISHA BINTI MOHD FAIZ", "NUR ATIYA HUMAIRA BINTI MAT YASIN", "NUR DAYANA HAZWANI BINTI MOHD SHADAT", "NUR HANA WARDINA BINTI MOHD KHAIRUL MUZZAMIR", "NUR NADIA BINTI YAAKUB", "NUR NAYLA QAISARA BINTI MOHD HAFIZ", "NUR RAYSHA RANIA BINTI MOHD QATAMAN", "NUR WIDAD SAFIYA BINTI KHAIRUL IZAT", "NURUL RAISHA RABIATUL ADAWIYAH BINTI KHOSIM", "RAJA NOR AMANDA AQILAH BINTI RAJA MOHAMAD AZLAN", "SITI NORAIN ASYIQIN BINTI ABDUL HAFIZ", "NUR INARA HUSNA BINTI MOHD FIRDAUS"],
+            "1 AL RAZI": ["AMAR AUS BIN MOHD EMMAR ZAMSHAH", "CHE WAN AHMAD AYDAN ZHARIF BIN CHE WAN MOHD FIRDAUS", "MOHAMAD ZULFAHMI BIN MOHAMAD ZULFADELI", "MOHAMMAD IAN RIZQI BIN MOHAMAD IMAN FAIZ", "MUHAMAD ANIQ RAFIQI BIN MUHAMAD RAHMAN", "MUHAMMAD ADAM FIRAS BIN SAMSUDIN", "MUHAMMAD AFIQ DHANNI BIN ABDUL AZHIM", "MUHAMMAD AZZAM SYAREEF BIN MOHAMAD ASYRAF", "MUHAMMAD FATEH HILMAN BIN MOHD ARIS", "MUHAMMAD HANIF MIKAIL BIN MUHAMAD HAKIMI", "MUHAMMAD ILHAN EQBAL BIN AHMAD", "MUHAMMAD LUTH RIZQI BIN AHMAD BAZLI", "MUHAMMAD RIFFQIE ARFAN BIN MOHD KHAIRUL IEZWAN", "MUHAMMAD SYAQIF AMMAR BIN SAIMI", "MUHAMMAD UMAR BIN MOHD ADIB", "MUHAMMAD ZARIF AZIZ BIN MOHD ZAMRI", "WAN MUHAMMAD AMMAR IRFAN BIN WAN MOHD ARIF AMIRUDDIN", "WA'QEEL ALTHAF BIN MOHAMAD EFFENDI", "AISYA AFIA BINTI MUHAMMAD AMIR", "ARWA ALESYA NURZAHRA BINTI MOHD KHAIRI AZLI", "DHIA AULIYA BINTI MUHAMAD TAQIYUDDIN", "MARYAM SYAFIRA BINTI MOHAMAD KHAIRUL HAFIZ", "NIK NUR HUSNA BINTI MUHAMAD SHAHARUDDIN", "NOR ZAHIRA AQILAH BINTI ZULKIFLI", "NUR AFRINA RAISYA BINTI OTHMAN", "NUR ASSYIFA HANAN BINTI MOHD IKBAL HAKIM", "NUR AULIYA HAURA BINTI AZLAN", "NUR DHAFWATUL AISY HAYANI BINTI ROAZAMI", "NUR HAURA' HUMAIRAA BINTI MOHD FADZIRUL EAFFENDY", "NUR INARA HANA BINTI MOHD FIRDAUS", "NUR IZARA RAISHA BINTI MOHD NIZAM FAZRUL", "NUR NAIRA AQILA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SARA MIKAYLA BINTI MUHAMMAD IKHTIYARUDDIN BAKHTIAR", "NUR ZAHRA SOFFIA BINTI AZHAR", "PUTERI ANGGUN ZENIA BINTI ZULHELMI", "SHAHEEN IMANI BINTI MD YASROL", "SITI RAWDHA ALFIA BINTI MOHD YUSDY BULHAQS", "TUAN AYRA MIKAYLA BINTI TUAN SHAMSUDIN"],
+            "2 AL BIRUNI": ["ARIIQ MIKAIL BIN MOHD HERISAH", "KU MUHAMMAD ADAM RAYYAN BIN KU MOHD SAFUAN", "MOHAMAD IMAN NAWFAL BIN SAYUTI", "MOHAMAD RAYYAN HAIKAL BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZAFRIEL MIKHAIL BIN NOR AZLAN", "MUHAMMAD ABDULLAH FAQIH BIN MOHD JUNAR AMAL", "MUHAMMAD ADDAS BIN YUSAIDY", "MUHAMMAD AMMAR ASYRAF BIN MOHAMAD TERMIZI", "MUHAMMAD AQEEF FIRASH BIN MOHAMAD FIRDAUS", "MUHAMMAD AQIF UZAIR BIN MOHD AFZANIZAM", "MUHAMMAD AQIL RAYYAN BIN AZFARIZAL SHAZWAN", "MUHAMMAD FARIS IQBAL BIN MOHD SAUPI", "MUHAMMAD HANAFI ZAFRAN BIN MOHD RIDZUAN", "MUHAMMAD MUAZ BIN MUHAMMAD MUHSIN", "PUTRA ANAQI MIKHAIL BIN MOHD FIRDAOUS", "QIWAMUDDIN BASHAR BIN AZMUDDIN", "RAIHAN ANAQI BIN ABDUL HAQQ", "WAN MUHAMMAD ARFAAN BIN WAN AFZAN", "HANNAH HASEENA BINTI HASWAWI", "NUR AAFIYAH BINTI MUHAMMAD NASRI", "NUR AAIRA ZINNIRAH BINTI MOHD SYAHRIZAI", "NUR AIN ADILA FATIHAH BINTI MAT ROSDI", "NUR AIRA MIKAYLA BINTI MOHD RAZALI", "NUR FALISHA BINTI MOHD FIRDAUS", "NUR IMANINA DARLEENA BINTI MOHAMED ZUHIR", "NUR SHADRINA FATHIA BINTI SHAMSURI", "NURIN AINUL MARDHIAH BINTI AKASHAH", "RAISYAA RANNIA BINTI MOHD SAIFUL NIZAM", "SITI NUR AFIA IMANI BINTI ASMAWI", "SYIFAA AZZAHRA BINTI ABDUL SYIHABUDDIN", "TUAN NUR AMNA QAILLA BINTI TUAN ROSLEE", "ULAYYA SAFIYYA BINTI ABDULLAH", "ZYRA NOUREEN BINTI MOHD. RAFIQ IZZAT", "ADARA SAFWAH BINTI MOHD SOLEHUDDIN"],
+            "2 AL FARABI": ["ABDULLAH AMMAR BIN AHMAD KAMIL HAFIZ", "AHMAD UMAR QURAISY BIN AHMAD FIRDAUS", "HABIB HASSAN BIN KARIM", "MUHAMMAD AIDAN HAIKAL BIN MOHD IDHAM", "MUHAMMAD AL FATIH BIN MOHD ARIFIN", "MUHAMMAD AMSYAR RAFIQIN BIN MOHD RAZREEN", "MUHAMMAD IFFAT RAFIUDDIN BIN AZMI", "MUHAMMAD ILHAM BIN MOHD TOHIR", "MUHAMMAD NAUFAL BIN AGUNG SUPRIYANTO", "MUHAMMAD NURKHALAF FAHMI BIN MOHD SHAZALEE", "MUHAMMAD RAZZAN IZZRAF BIN MOHD JALANI", "MUHAMMAD ZAFRAN RAZI BIN MOHD HANIFF", "TUAN HARRAZ ANAQI BIN TUAN AHMAD HAFISZA", "UMAR ARRAYYAN BIN MUHAMMAD ZULFAHMY", "WAN MUHAMAD ZULFAHMI BIN WAN HAZLAN", "WAN MUHAMMAD HASIFF BIN WAN MOHD FAHMI NASRI", "ANGGUN MIQAELA BINTI MOHAMMAD KHAIRIL MUZAFFAR", "ANIS RAISYA ADRIANA BINTI AZMIL", "NIK AISYA BINTI NIK MOHD HANAFIAH", "NOR ZULAIKHA HUMAIRA BINTI MOHAMAD ZULKIFLI", "NUR AINAN SOFIA BINTI MOHD ZAHID", "NUR IMANI HAFIYA BINTI ABD HAFIZUDDIN", "NUR JAUZA AL-ZAHHRA BINTI ZUWAIRI", "NUR KHAYRA MIKAYLA BINTI MUHAMAD FAIZOL", "NUR QALESYA HUMAIRA BINTI MOHD HAFIZHU QAYYUM", "NUR WARDAH SYAQILAH BINTI MOHD ZULKIFLI", "QISYA NUR KHAIREENA BINTI MOHD HAMRY", "RAANIYA A'LANI BINTI MOHD RASHID", "SITI FARAH HUMAIMA BINTI ABDUL QAYYUM", "SITI HAJAR MARDHIAH BINTI ARIWAN", "SITI NUR AIN IZARA BINTI MOHAMAD SAIFUL BAHARI", "WAFA SYAKIRAH BINTI NOR AZLAN", "AHMAD SHAHRUL SHAFIEE BIN AHMAD SUHAIMEE", "MUHAMMAD HAIKAL BIN MOHD HELMI"],
+            "2 AL KINDI": ["AHMAD DANISH RAYYAN BIN ABDUL KARIM", "AHMAD FAHIM BIN ABDUL MUHAIMIN", "AHMAD RAYYAN ISKANDAR BIN AHMAD MUHAIMIN", "CHE ENGKU IRSYAD RAFIQIE BIN CHE ENGKU INDRA", "IFFAT ZIYAD BIN ISKANDAR", "MOHAMMAD HARRAZ DZIKRI BIN MOHD HISHAM", "MUHAMAD KHALISH ILHAM BIN ABDUL RAZAK", "MUHAMMAD AALI MIKAIL BIN SOBRYALAISA", "MUHAMMAD ADLI SAEF BIN JAMELLUDIN", "MUHAMMAD ADYAN RIZQI BIN RUZLAN", "MUHAMMAD AFNAN NAUFAL BIN ABDUL AZIZ", "MUHAMMAD AMEER RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD ANIQ AMSYAR BIN MOHD TAMIZI", "MUHAMMAD DAIYAN RIZQIN BIN HAZIROL NIZAM", "MUHAMMAD ISYRAQ MUSAYYAD BIN MOHD HARIS", "MUHAMMAD RAYYAN ANAQI BIN MOHD FAIZAK", "SYED NUH KHAIRIL HAKIMI BIN ABDULLAH", "AINUL MIKAYLA IMANI BINTI ZAMRI", "AMNI MALIKA BINTI MOHD KAMARULZAMAN", "ASMA' BINTI MAMDUH", "NOOR JANNAH SOFIA BINTI MOHD SAFWAN SARIY", "NUFA AZZAHRA BINTI AZUAN", "NUR AISYAH ALEESA BINTI JEMMI", "NUR ALISHA SOFEA BINTI MOHD HASRUZI", "NUR AMNI HUMAIRA BINTI MOHD HAIMI", "NUR MARDHIYAH BINTI MOHAMAD ZULFADELI", "NUR MEDINA BINTI MOHD ROSLAN", "NUR WARDAH SAFIYYA BINTI MOHD ZULKIFLI", "NURUL QISTINA DAHLIA BINTI SIDI AHMAD", "RAISHA AQILAH BINTI MOHD FAIZZUL"],
+            "2 AL RAZI": ["AFEEF HARIS BIN ANUAR", "FAID ZIYAD BIN MOHD FAIZZUL", "MUHAMAD HARRAZ HAZIQ BIN MOHD REZALI", "MUHAMMAD ADAM FAREEZ BIN MOHD FAIZ", "MUHAMMAD ADAM RAYYAN BIN FAHMI", "MUHAMMAD AHNAF HAYQAL BIN MOHD AZIZUL", "MUHAMMAD AL HAZAMI ASFRAF BIN ABDUL RAHMAN", "MUHAMMAD AMMAR ASYRAF", "MUHAMMAD ANAS ZIYAD BIN SAMZULI", "MUHAMMAD FARISH MIKHAEL BIN MOHAMED ALAM AKBAR", "MUHAMMAD FIRDAUS HAZIQ BIN MUHAMMAD HAFIZI", "MUHAMMAD HAZIQ RIZQI BIN MOHAMAD ZAINI", "MUHAMMAD IMAN SYAKIR BIN MOHAMAD HANAFI", "MUHAMMAD QARIZH BIN MUHAMMAD HAFSHAM", "PUTERA AZAFFRIEL RAMADHAN BIN MOHD AMIRUL ANHAR", "PUTRA KHALISH HAQ BIN ANUAR", "AAFIA BINTI MUHAMAD HANIF", "CHE NUR SYIFFA HANANIA BINTI CHE MOHD NOOR SUBHIE", "MARYAM SOLEHAH BINTI ZABRI", "NUR AFIA IRDINA BINTI MOHD ZULKIFLI", "NUR AILEEN MAISARAH BINTI MUHAMAD SULAIMAN", "NUR DHIA ARISSA BINTI MUHAMAD HARIS", "NUR DINA AULIYA BINTI MOHD ZAMHAM", "NUR FARAH AISYA BINTI KOLEK @ AZRUL", "NUR HANAN KHAIRA BINTI MOHD SHUKRI", "NUR HUSNINA ADWA BINTI HALIMI", "NUR INARA HANA BINTI MOHD YAAKOB", "NUR JAMRAH HAURA BINTI HIZWAN FAZRI", "NUR NAINA NADEERA BINTI MOHD SOBRE", "NUR QASEH QAISARA BINTI ABD RAZAK", "NURUL HIDAYAH AQILAH BINTI AZMAN", "UMMI SAFIYYA BINTI MOHAMAD BORHANUDIN"],
+            "3 AL BIRUNI": ["FAYYAD IFFAT BIN FAIYRUL", "MUHAMAD IMAN AISY BIN AFTAR", "MUHAMMAD AIDIL MIKHAIL BIN MOHD SUKRI", "MUHAMMAD AMMAR DANIYAL BIN MOHD JAAFAR", "MUHAMMAD AQIFF BIN MUHAMMAD RIDHUAN", "MUHAMMAD FARIS ADRIAN BIN MUHAMMAD ADAM", "MUHAMMAD HAALIQ UZAIR BIN MOHD FAIZAL", "MUHAMMAD HADI IRSYAD BIN ASMADI", "MUHAMMAD HADIEF BIN MUHAMMAD NUZAINI", "MUHAMMAD MUAZ BIN MOHD ZULKAFLI", "MUHAMMAD NASRUL HAQ BIN MOHD KAMAL", "MUHAMMAD UWAIIS RIEZKI BIN MOHD SHAHIRAN ANUAR", "MUHAMMAD UWAIS AL QARNI BIN MOHD RAMDHAN", "MUHAMMAD ZULHAIRY BIN MOHD ZAMRI", "RAJA AFEEF AISY RIZQI BIN RAJA AZMAN", "RAZIF ARSYAD FITTRI BIN ROSLI", "AINUR ASHSYIFFA RANIA BINTI MOHD ASHROFF", "ALISHA SOFIA BINTI MOHD IZWAN HANIF", "DHIA MEDINA BINTI MOHAMAD AZWAN IFRAM", "INAS INARA AULIYA BINTI MOHD KHAIRUL IEZWAN", "NIK HUMAIRAA' IRDHINA BINTI NIK MOHD HAFIS", "NUR AIDA SAFFIYAH BINTI MUSA", "NUR AINA SOFIA BINTI NOR HISHAM", "NUR ANIS SHAZWANI BINTI ABDULLAH", "NUR DHIA UFAIRAH BINTI ABDUL RAZAK", "NUR ERRIERA FARHANA BINTI AZHAR", "NUR JANNAH BASIRUN BINTI MOHD AZRUL", "NUR NISRINA ADILA BINTI ARIF FADILLAH", "NUR SOFEA AULIA BINTI MOHD ZAMRI", "NUR WAFA SOLEHAH BINTI MOHAMAD ALY", "NURUL ADIRA DELISYA BINTI SUFIAN", "NURUL AQILA ZASKIA BINTI MOHD NAZROL", "NURUL DELISHA WARDANI BINTI ZUL HAKIM", "NURUL JANNAH BINTI MUHAMAAD FITRI", "NURUL NAJIHATUL SYUHADA BINTI KHOSIM", "NUUR IQKLIMAA BINTI MUHAMMAD", "SITI DAISHA RAIHANAH BINTI HAZIROL NIZAM", "MUHAMMAD EZZ AYDEEN ZHAFRAN BIN MOHD DASUKI"],
+            "3 AL FARABI": ["ABU HAZIQ HUZAIFAH BIN ABU HURAIRAH", "AISH HAFIY BIN MOHD SHASRUL HASRA", "DARWISY AARYAN BIN DANISH BAARATHMOGAN", "MOHAMAD PUTERA UMAR FARHAN BIN ASRAH @ SHAFIE", "MUHAMAD AFIQ RIDWAN BIN MUHAMAD RAHMAN", "MUHAMMAD DAYYAN DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD HAFIZ IRFAN BIN MUHAMMAD RIDZAN", "MUHAMMAD HARIZ BIN MOHD HIDAYATULLAH", "MUHAMMAD IMAN DHANI BIN KHAIRUL ANWAR", "MUHAMMAD QARIZH FAYYADH BIN MOHD IZHAM", "MUHAMMAD RIFQIE THAQIFUDIN BIN SAMSUDIN", "MUHAMMAD SUFIY IZZHAN BIN MOHAMED ISMAIL", "MUHAMMAD SYARIEZ FAYYADH BIN SHAMSURI", "WAEL ANAQI BIN MOHAMAD EFFENDI", "WAN MUHAMMAD AMSYAR BIN WAN MOHD HAFIZUDDIN", "AILEEN ALIESYA BINTI MUHD AZRIE SYAZALI", "AIRA NADIYAH BINTI MOHD FUZAIMI", "CHE ENGKU NUR QASRINA DAMIA BINTI CHE ENGKU ISKANDAR", "NIK NUR ARIANA SAFIYA BINTI NIK MOHD ARIF", "NUR AAIRA ALISHA BINTI AMIRUL ASYRAF", "NUR AAIRA JAZMIN BINTI JAAFAR", "NUR ALIYA SHAHEERA BINTI ABD.AZIZ", "NUR AUFA BINTI AHMAD AZIZI", "NUR AUNI MIRZA BINTI MAZMIZAN", "NUR DHIYA RAIHANAH BINTI ROSLI", "NUR FATHIYYA AMANI BINTI MUHAMMAD SHAIFUL AMIERUL", "NUR RAISYA IMANI BT M.FAREZ IZWAN", "NUR SYIFA ANNISA BINTI MUHAMMAD ILYAS", "NUR SYIFA AQILAH BINTI MOHAMAD SHAHRUL EFFIZAN", "NURIN ALYA BINTI ZAMRI", "SITI MARYAM BINTI MOHD ASRI", "SITI NORAISYAH SYAFIA BINTI ABDUL HAFIZ", "SITI NUR ARIESHAA BINTI ROSLAN", "TENGKU AILEEN HAYANI BINTI TENGKU NURUL FAKRI", "UMI NUR ARQIELLA UMAIRAH BINTI ABDULLAH", "WAN NUR MARIAM ADRA BINTI WAN MUSTAFA"],
+            "3 AL KINDI": ["AHMAD MUAYYAD BIN MANSOR MAJDI", "AHMAD NAQUIB BIN MUHAMMAD NAJID", "MUHAMAD AISY FAYYADH BIN MUHAMAD HAFIZI", "MUHAMAD EIJAZ ZIQRI NAZARIN BIN ABDUL KARIM", "MUHAMMAD AFIY FAKRI BIN ZUKRI", "MUHAMMAD AZFAR DANISH BIN MOHD AZLAN", "MUHAMMAD KHALEED BIN MUHAMMAD FADHIL", "MUHAMMAD NAUFAL IMAN BIN ABU TALIB", "MUHAMMAD RAYYAN FIRDAUS BIN ABDULLAH", "MUHAMMAD SYARIF ADAM BIN SAIMI", "MUHAMMAD WAFIY BIN KHAIRUL IZAT", "MUHAMMAD ZAQWAN ZAHIRULLAH BIN ABDUL ZAHIR", "MUHAMMAD ZAYYAN BIN MOHD SHAFIK", "QARIZH HILMI BIN SHARI HAMDAN", "TENGKU MUHAMMAD ADAM DANIAL AMSYAR BIN TENGKU AZLAN", "WAN MUHAMMAD ARMAN BIN WAN AZMAN", "ZUL EZHAM RAMDHAN BIN ZULHAIZAL", "HANNAH SOFIYYAH BINTI MOHAMMAD AFIQ", "NIK NUR ADIRA IZZATI BINTI KAMARUL AZUAN", "NOOR SYAFIRA BINTI ABD MALIK", "NUR AFEEYA ALEESYA BINTI NOR FADZROL", "NUR AINA BATRISYIA BINTI ABDULLAH", "NUR AIRA AQILAH BINTI ROIS", "NUR AUNI DAHLIA BINTI MOHD SYAIFFULDIN", "NUR FAHIMA ALIFA BINTI ABDUL MUHAIMIN", "NUR ZAHRA QAISARA BINTI AHMAD ZAKI", "NURIN ALYA HUMAIRA BINTI MOHD ROKMAN", "NURUL AMEENA RAUDHAH BINTI SIDI AHMAD", "NURUL IZYAN SOLEHAH BINTI MUHAMAD ABDUL HADI", "PUTERI NUR ATHYRAH AUNI BINTI MOHD ZULKARNAIN IMRAN", "PUTERI NUR HUSNA IZZARA BINTI HABIBUL INSAN", "PUTRI NUR ARRIANA DAMIA BINTI AMRAN", "PUTRI NUR BALQIS RAISHA BINTI AZNAN", "PUTRI SAYYIDA AL HURRA BINTI MOHD SHAHARUDDIN", "QHADEEJA AINNUR SAFIYA BINTI ANWAR SHAFIQ", "WAN NUR HUMAIRAH BINTI WAN MOHD ARIF AMIRUDDIN", "NUR HANAN INSYIRAH BINTI ABDUL MUEIZ"],
+            "3 AL RAZI": ["AMSYAR RAFIQI BIN ZAHARI", "MUHAMMAD ADAM MIKAIL BIN MOHD FIRDAUS", "MUHAMMAD ADHAM BIN MOHD SHAHRUL BAHARI", "MUHAMMAD AISY RAYYAN BIN MOHD RIDZUAN", "MUHAMMAD AMSYAR RAID BIN MOHAMMAD REDZUAN", "MUHAMMAD BIN HO SEN", "MUHAMMAD EL ARYYAN BIN MUHAMMAD AZMAN", "MUHAMMAD ELYAS WAFIY BIN MOHD ADILA", "MUHAMMAD HABIB AMSYAR BIN HAFIZUL AHMA", "MUHAMMAD IKHMAL HAZIQ BIN MOHD IRWAN HAZUAN", "MUHAMMAD IRFAN BIN ABDULLAH", "MUHAMMAD NAUFAL BIN MOHD KHAIRUL NIZAM", "MUHAMMAD PUTRA HIQWAN RAYQAL BIN MOHD AFENDI", "MUHAMMAD RAYQAL RIFQIY BIN MOHD QATAMAN", "MUHAMMAD SYAMER HAIKAL BIN AWANG", "MUHAMMAD UMAR MUHAIMIN BIN SOBRYALAISA", "AIRIS DELISHA BINTI AL HADI", "AMNA NUR QAIREEN BINTI MOHD ZAMZIRO", "CHE UMMIE SAIDATUL KHATIJAH BINTI CHE ANUAR", "NIKITA NURZAHIRA BINTI MUHAMMAD NATRAH", "NORAKILA BINTI AHMAD JAMAL", "NUR AQEELA NAZIRA BINTI ROSLAN", "NUR DELISHA HUMAIRA BINTI MUHAMMAD ZUL AKRAAM", "NUR FAIQAH QURRATU AIN BINTI ABDUL FATTAH", "NUR FALISHA QAISARA BINTI MOHD FAHMI", "NUR HANANIA MIQAYLA BINTI HAIRUL ANUAR", "NUR IZZARA SOFEA BINTI MOHD ADIB", "NUR MARDHIAH SUMAYYAH BINTI MUHAMMAD SOFFIAN", "NUR NAURA AMANDA BINTI ABDUL MU'IZZ", "NUR WAHIDA NABILA BINTI SOFIAN", "NUR YASMEEN NAURA BINTI MOHD NORHAFIZAN", "NUR ZAHRA DHIYA BINTI MOHD FARID", "NUR ZAKIRAH KHALISYA BINTI MOHD ZULKARNAIN", "NURUL SYAMIMI QAISARA BINTI SHAHRUL ANUAR", "PUTRI QALISHA QISTINA BINTI MUHAMMAD JOLAKMAN", "TUAN NUR ALANIAH QHADRA BINTI TUAN ROSLEE", "ZARA HUMAIRA BINTI MOHD SHAHMARULL FAIZULL"],
+            "4 AL BIRUNI": ["DANIAL NAUFAL BIN ABDUL HANIF SAFWAN", "IRSYAD ZIYAD BIN ISKANDAR", "MUHAMAD KHALIQ HABEEB BIN MOHD KHAIRIL", "MUHAMMAD ADAM MUKHRIZ BIN BAHARUDDIN", "MUHAMMAD AFIQ IRFAN BIN ABDUL AZIZ", "MUHAMMAD AQIL KHALISH BIN AZRUL AZUAN", "MUHAMMAD DHUHA HANNAN BIN MOHD ROSTAM", "MUHAMMAD HAIQAL DANIEL BIN ZAKARIA", "MUHAMMAD HASBULLAH BIN MOHD NAPI", "MUHAMMAD IRSYADUDDIN BIN AZMI", "MUHAMMAD NAQIB BIN AGUNG SUPRIYANTO", "MUHAMMAD RIZQI BIN SYAHRIL", "PUTERA NOAH ZAYDAN BIN ZULHELMI", "TOBARI BIN NOR AZLAN", "TUAN MUHAMMAD EMIL HARRAZ BIN TUAN MUHAMMAD MASRI", "WAN MUHAMMAD AMMAR BIN WAN AZMAN", "ADRIANA FARANISA BINTI MOHD HERISAH", "AISYA HADIJA BINTI ASRI", "ASSYIFATU HAIESHA BINTI MOHD HASDI", "FATIN SAFIYA BINTI ROSLE", "MARYAM MALEEQA BINTI MOHD ABASRI", "NOR AZRATUL DARWIYAH BINTI ZULKARNINE", "NUR AINUN HUMAIRA BINTI MOHAMMAD KHAIRUDIN ASWADI", "NUR AMEERA ADIERA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISHA MAISARA BINTI MAZLAN", "NUR DAMIA HAZWANI BINTI MOHD SHADAT", "NUR DHIA AMMARA BINTI MUHAMAD HARIS", "NUR FARISHA DIANDRA BINTI AHMAD FAZIL", "NUR FATHIA ASHEEQA BINTI MOHD ZULLY HAZREE", "NUR IZZ ZARA INARA BINTI MOHD KHAIRRUL KHITTWAN", "NUR SYAZMA BINTI ABD RASID", "NURUL JANNAH BINTI MOHD KHIROOL", "PUTERI NUR JUVTA BINTI MOHD TAMIZI", "TUAN NUR FATHIHA ARISSA BINTI TUAN MOHD FAIZAL", "UMMI HUMAIRA BINTI MOHAMAD BORHANUDIN", "WAN ATIYYAH BINTI WAN MOHAMED ASYRAF", "WAN NUR INSYIRAH BINTI WAN MOHD ARIF AMIRUDDIN"],
+            "4 AL FARABI": ["ABDULLAH KASYAF BIN MOHD SUHAIMI", "CHE MUHAMMAD KHALISH AMZAR BIN CHE MOHD FAIZAL ANUAR", "MOHAMAD ADAM BIN KALINGGALAN", "MUHAMAD KHALISH ILMAN BIN ABDUL RAZAK", "MUHAMMAD ABBASYIR DARWISY BIN MOHD IKBAL HAKIM", "MUHAMMAD ADAM ARSYAD BIN ROSLI", "MUHAMMAD AL FATIH BIN MUHAMMAD NASRI", "MUHAMMAD AYUB LUTFI BIN MASHATA", "MUHAMMAD DANISH HASZRIQ BIN MOHD SAIFUL AZUAN", "MUHAMMAD FAQIH SHAQIMAN BIN MOHD SHAIFUDDIN", "MUHAMMAD FATEH AMIN BIN ROIS", "MUHAMMAD NAIM FITRI BIN MOHD SALEH", "MUHAMMAD NOR SYAKIR IRFAN BIN ABDUL RAHMAN", "MUHAMMAD RAFIF JAMIL BIN MOHD SABRI", "RAJA DANIAL RIZMAN ZAFRAN BIN RAJA MAHMUD", "AIN NUR AIISYAH BINTI SHARUMNIZAM", "AINUL MARDHIAH BINTI MOHAMAD TERMIZI", "AISHA ALYSHA BINTI MOHD AZIZAN", "AN'NUR FIRHANNAH EISABELLA BINTI MASRI", "CHE NUR SAFIYA HUMAIRA BINTI CHE MOHD NOOR SUBHIE", "NOR ZUHAYRA AFRINA BINTI ZULKIFLI", "NUR AIN AQILA FARHANA BINTI MAT ROSDI", "NUR AINNA SOFEA BINTI ZAINUDIN", "NUR ALESHA ADIRA BINTI MOHD KHAIRI", "NUR ALISYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ANNASYA ADRIENA BINTI MUHAMMAD RIDZAN", "NUR DELISHA QAISARA BINTI AHMAD RIDZUAN", "NUR SAFIYA MADIHAH BINTI MOHD ROSMADI", "NUR SYAHIRAH ZAHRA BINTI MOHD SHAFIE", "NUR SYAKIRAH ZAHRA BINTI MOHD SHAFIE", "NURINA NUR ZULAIKHA BINTI MOHD ZAIMI", "NURJANNAH FITRIAH BINTI MOHD FARIS FAKHRULLAH", "PUTERI NUR HANI AZZAHRA BINTI HAFIZUL AHMA", "PUTRI NUR AISYA AMANI BINTI AMRAN", "RASYIQAH TIHANI BINTI MOHD ROZIE JEFRI", "SAIDATUL AISYAH BINTI SANSURI", "UMMUL KHADEEJAH BINTI MOHD AZMI"],
+            "4 AL KINDI": ["AHMAD ANEEQ FIRMAN BIN MOHD RAZDI", "CHE MUHAMMAD KHALEEF AMSYAR BIN CHE MOHD FAIZAL ANUAR", "HARRAZ RYQAL BIN AHMAD FADZELIN", "IRSYAD FAIDHI BIN ISMARUDIN", "IZZUDIN AKMAL BIN MOHD AMRAN", "MUHAMAD DANIAL BIN MOHD AMRI", "MUHAMAD KHALISH IRFANUDIN BIN SAMSUDIN", "MUHAMMAD ADAM RAYYAN BIN MOHD ZAMRI", "MUHAMMAD AKIF MIRZA BIN MOHD HANIFF", "MUHAMMAD AMMAR SUFI BIN MOHD SIDEK", "MUHAMMAD EL ARFFAN BIN MUHAMMAD AZMAN", "MUHAMMAD FARIS BIN MOHD ASRI", "MUHAMMAD YUSUFF BIN MOHD ASRI", "PUTRA KASYFUL HAQ BIN ANUAR", "WAN MOHAMMAD FAHIM BIN WAN MOHD. FADHLI", "ZIYECH SHAQIRI BIN KHAIRUD DIN", "AFEEYA AZHARA BINTI MUHD AZRIE SYAZALI", "AISYAH ALEESYA BINTI MOHD HAIRUDIN", "NOR ARIANA QAIRA BINTI MOHD WAN ABDUL WAHAB", "NUR AMEERA ADIELA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISSA ARWA BINTI CHE ISMAIL", "NUR ARISSA SAFIYYA BINTI MOHD RAZALI", "NUR AYRAA QAISARA BINTI ABDULLAH", "NUR DARWISHA MAISARA BINTI MAZLAN", "NUR IFFA DELISHA BINTI SHARIZAN", "NUR INSYIRAH BINTI KARIM", "NUR IRDINA SOFEA BINTI ABDUL KHALID", "NUR JANNAH BINTI RAZAK", "NUR KHAYRA IRDINA BINTI MOHD KHAIRULIZWAN", "NURUL HASNA HUMAIRA BINTI KASA", "PUTRI NUR HIDAYATUL ERLISA BINTI MOHAMAD HAFIZ", "SAIDATUL NUR QHADEEJA BINTI MOHD SUFIAN", "SHAFAA NUR AZZAHRA BINTI MOHD SHAMSURI", "SITI NUR DHALIA ARFINA BINTI MOHD NOR ASYHRAF", "ZARITH DIYANDRA ROSHA BINTI ABDULLAH", "ADHAWIYATUL RAHMAH BINTI AHMAD"],
+            "5 AL BIRUNI": ["AHMAD ALIF NAZRULLAH BIN MOHD KHAIRI AZLI", "AHMAD AMAR ARRFAN BIN MOHD KHAIRUZAM @ AZROL", "AHMAD ARSHAD BIN AHMAD RIDWAN", "AMZAR ZAFRI BIN AMREE", "ASYRAF FIRDAUS BIN ABDULLAH", "CHE ADAM ALIF BIN CHE ANUAR", "MUHAMMAD AFFAN DARWISY AISY BIN MOHD IZUAN", "MUHAMMAD AIYRUL SYAFIQ BIN KAMARUDDIN", "MUHAMMAD ARYAN BIN MOHD IKHMAL", "MUHAMMAD FAIZ ZAQWAN BIN MOHD RIZWAN", "MUHAMMAD HAZIQ SYAHMI BIN MOHD ROSLI", "MUHAMMAD HAZRIN BIN MUHAMMAD NATRAH", "MUHAMMAD IDRIS BIN MOHD RAMDHAN", "MUHAMMAD IMAN SOLIHIN BIN MUHAMAD ABDUL HADI", "MUHAMMAD IRFAN BIN MD YASROL", "MUHAMMAD IWADH MULHIM BIN MOHD HARIS", "MUHAMMAD SYAMIL HADIF BIN NASROL IHHAM", "MUHAMMAD SYAWAL BIN MUSTAFFA", "MUHAMMAD THAQIF BIN MOHD AZLAN", "MUHAMMAD YUSOF BIN GHAZALI", "MAIZATUL ADAWIYAH BINTI ADUMI @ KAMARUDIN", "NUR ALYA QALISYA BINTI MOHD ZULFADLI", "NUR ANNISA BINTI MAT YASIN", "NUR DHIA QAIREEN BINTI MOHD ROSTAM", "NUR HANA SALSABILA BINTI MUHAMMAD ZULFAHMY", "NUR HANA SYAURA BINTI MOHD SAIFUDDIN", "NUR IRTIYAH DZAKIYAH BINTI MOHAMED ZUHIR", "NUR MAISARAH BINTI MOHAMAD ZULFADELI", "NUR MARYAM AQILA BINTI ABDUL RAHIM", "NUR SOFIYYAH AZZAHRA BINTI RAZAK", "NUR ZAHRA NAZIHA BINTI MOHD NORHAFIZAN", "NURUL AISYAH DAMIA BINTI SUFIAN", "NURUL ALEESYA DAMIA BINTI MOHD SUKRI", "PUTRI NUR AYUNIE NATASHA BINTI MOHD AFENDI", "SYAHIDA TASNIM BINTI SUMANTRI", "SYAHMINA BINTI IZANI", "WAN NOR FARISYHA DIANA BINTI WAN GHAFAR", "NUR FAZIAH BT MOHD FAUZI", "MUHAMMAD AQIL ZAKWAN BIN ABDULLAH"],
+            "5 AL FARABI": ["AAKIF ZAFWAN BIN ABDULLAH", "AMMAR ZAFRAN BIN MOHD KHAIRI", "MUHAMAD AISH DANIYAL BIN MUHAMAD HARIS", "MUHAMAD FATTAH NAJMI BIN ABDUL FATTAH", "MUHAMAD YUSOF BIN ABDUL FATTAH", "MUHAMMAD ADAM ARSYAD BIN MOHD HAFIZ", "MUHAMMAD ADAM ASRAF BIN NOR FADZROL", "MUHAMMAD ADWA AFIQ BIN MUHD FADZLI", "MUHAMMAD AQIFF FATTAHUALLAH BIN MAT JID", "MUHAMMAD ASYRAAF JABRULLAH BIN MOHD ASNAWI", "MUHAMMAD DANISH BIN MOHD AMRI", "MUHAMMAD DARWISY BIN ASHAARI", "MUHAMMAD FATAH BIN MOHD FAIZAL", "MUHAMMAD HAZIQ IQBAL BIN MOHAMAD ZAINI", "MUHAMMAD ILHAM SOLEH BIN RAMZU NAZRI", "MUHAMMAD IZZ ASFA BIN MOHD NAZARUDI", "MUHAMMAD ZACK ZAFFRIEL BIN MOHD ZULKIFLI", "MUHAMMAD ZULHUSNI BIN MOHD RAHIM", "NAIL ANAQI BIN KHAIRUMIZAN", "TENGKU IMAN MUIZZ ADHA BIN TENGKU AZHAR", "AINUL MARDHIAH BINTI MOHD HAFIZUL", "AISYA UMAIRAH BINTI ABDUL RAHMAN", "AMARRA AFINA BINTI MOHD EMMAR ZAMSHAH", "EL ZAHRA NAAILA BINTI MOHD ADILA", "HUSNA HUMAYRAA BINTI HASWAWI", "NUR 'AAQILAH AMNI BINTI AHMAD BAZLI", "NUR AINA DALISYA BINTI MOHD NIZAM FAZRUL", "NUR AINATUL HUSNA BINTI AZLAN", "NUR AMNA SAFIAH BINTI JAMELLUDIN", "NUR DHIA ADRIANA BINTI MOHAMAD KHAIRUDDIN", "NUR FARHANA HANISAH BINTI AZHAR", "NUR FATHIAH AMANI BINTI MOHD ROSNI", "NUR QAIREEN IMANI BINTI MOHD SUHAIRY", "NUR RAUDHAH AMANI BINTI ROSDI", "SITI NUR AINA NADHIRAH BINTI ASMAWI", "SITI ROSMARIYANI BINTI ROSMAN", "TENGKU AINA HUSNA BINTI TENGKU NURUL FAKRI", "TUAN NUR AZZALEA QAIREEN BINTI TUAN ROSLEE"],
+            "5 AL KINDI": ["AHMAD DANIAL HAZEEQ BIN AHMAD BARDAIN", "AHMAD DANISH IKHWAN BIN CHHEANG RIN", "AHZA MUJAHID BIN MOHD KAMARULZAMAN", "MOHAMAD ZARIF QUSYAIRI BIN AHMAD ZAKI", "MUHAMAD ADAM ARIQ BIN ABDULLAH", "MUHAMAD RAFIUDDIN BIN MUHAMAD RAHMAN", "MUHAMMAD ALIF DANIAL BIN MOHD AZLAN", "MUHAMMAD ALIF HAIDAR BIN MOHD ZAHID", "MUHAMMAD AMMAR KHALISH BIN ABDULLAH", "MUHAMMAD AMMAR RAYYAN BIN MOHD HAMIZI", "MUHAMMAD AMMAR ZAFRAN BIN MOHD SYAHRIZAI", "MUHAMMAD ARJUNA RIZQIN BIN MOHD RAZREEN", "MUHAMMAD ASHRAFF BIN ZULKIFLI", "MUHAMMAD DANIEL DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD FAKHRI BIN ROSMADI", "MUHAMMAD HARIZ ADRIAN BIN ASMADI", "MUHAMMAD ISYRAF ZAYYAN BIN MOHD ROSLAN", "MUHAMMAD MUNIFF MUHAIMIN BIN ABU HASSAN", "MUHAMMAD NAQIB AL AMIN BIN MOHD NIZAM", "MUHAMMAD NUR LUTFI BIN ABDUL HAKIM", "MUHAMMAD RAFIQ ZAFRAN BIN MOHD RIZUAN", "MUHAMMAD RAYYAN IKHWAN BIN MOHD JALANI", "ADYRA AZZAHRA BINTI AZMADI", "CHE KU ESHAL AZZALEA BINTI CHE KU ALIAS", "DANISHA ELRIEKA SOFIA BINTI ABDUL KARIM", "HANIA SYAKIRA BINTI ABDULLAH", "NUR AIN HUMAIRA BINTI MAZLAN", "NUR ANEESHA BALQIS BINTI AHMAD", "NUR FAKHIRA AMANI BINTI MOHD FAHMI", "NUR FARIESHA ADRIANA BINTI ABDUL AZIZ", "NUR FATHIYATUSH SHAKIRA BINTI SUHAIDI", "NUR NADIRA HUDA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SAFIYYA MAISARA BINTI ABDUL FATTAH", "NURDHIA ARISHA BINTI ZULKIFLI", "NURUL AMRA NASRINA BINTI ZAIDI", "PUTERI NUR UMAIRAH BINTI MOHD AMIRUL ANHAR", "RAJA NORAMMARA ARISSA BINTI RAJA MOHAMAD AZLAN", "SITI DEWINA RAMADHANI BINTI ABDUL SALAM", "SITI ZARINA BINTI MOHD ZAMRI", "DHIA QAISARAH SOLEHAH BTINTI MOHD HELMI"],
+            "6 AL BIRUNI": ["ATIQURRAHMAN BIN MOHD YUSOFF", "FAKKUAN NAZREEN BIN MOHD NOR BADRUL HISHAM", "IBHAR FITRI BIN ISMARUDIN", "MUHAMAD AZFAR AISY BIN AFTAR", "MUHAMAD YUNUS BIN ABDUL FATTAH", "MUHAMMAD ADAM SAIFULLAH BIN SAMZULI", "MUHAMMAD ADIB ADWA BIN CHE ISMAIL", "MUHAMMAD AKID BIN SUTILAN", "MUHAMMAD AKIF HAKIMIE BIN MOHD REMI", "MUHAMMAD AMZAR UZAIR BIN SHARUMNIZAM", "MUHAMMAD AQLAN WILDAN BIN SALADIN", "MUHAMMAD DANIAL HAZIQ BIN MOHD KHAIRRUL KHITTWAN", "MUHAMMAD FARIS DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAZIQ RAYYAN BIN SHAHRUL ANUAR", "MUHAMMAD RAYHAN BIN MOHD SABRI", "MUHAMMAD SYARIF DARWISY BIN MOHD SYAIFFULDIN", "NUR IMAN HAKIMI BIN NORAWI", "TUAN MOHAMMAD IBNU AFFAN BIN TUAN MOHD SANUSI", "WAN ZIQRI HAKIM BIN WAN ZULKIFLI", "AMNAA NUR SALEEMA BINTI ABDUL JALIL", "AMNII NUR AMEENA BINTI ABDUL JALIL", "ARISYA IZARA BINTI ABDUL RAUFF", "CHE ENGKU NUR QASEH ARISSA BINTI CHE ENGKU ISKANDAR", "HASYA HAFIYA BINTI MOHD SHASRUL HASRA", "KHADEEJA AINA BINTI HASNAN", "MAWAR NURHUMAIRA BINTI ABU BAKAR", "NORDANILA BINTI ABDULLAH", "NUR FATHIA AQILAH BINTI KOLEK @ AZRUL", "NUR FITRI NATASYA BINTI SOFIAN", "NUR HANANIA UZMA BINTI MUHAMAD HAFIZI", "NUR HANIS ARISSA BINTI ABDUR RAHMAN", "NUR INTAN FARHANA BINTI ZAKARIA", "PUTERI FARIZA DAYANA BINTI SUTRISNO PRAPTO PARDI", "PUTRI AS SYAFA ATHIRAH BINTI MOHD RAZDI", "QHADEEJA AINNUR AISYA BINTI ANWAR SHAFIQ", "WAN NUR ARIANA BINTI WAN MOHD NASIR", "NUR NADIRAH BINTI ABDUL MUAEIZ"],
+            "6 AL FARABI": ["ARMAAN YOUSSEF BIN AMIRUDDIN", "DANNIZ FIRDAUSY HASSAN BIN TATUH", "MUHAMMAD AFIQ KHALIF BIN MOHD SAIFUL", "MUHAMMAD AMMAR ARYAN BIN MOHD KHAIRI", "MUHAMMAD AMMAR RIZQI BIN ROSDI", "MUHAMMAD AMZAR IKHWAN BIN MOHD KHAIRUL ANUAR", "MUHAMMAD ASHSHAFF RAQIB BIN MOHD ASHROFF", "MUHAMMAD EIMRAN ARIEF BIN MUHAMAD NASRI", "MUHAMMAD HARRAZ UKAIL BIN MOHD FAIZAL", "MUHAMMAD IBNU QUSYAIRI BIN MOHD ARIS", "MUHAMMAD ISKANDAR BIN SYAHRIL", "MUHAMMAD NADEEM IQBAL BIN ABDUL RAFI", "MUHAMMAD NAUFAL AL AMIN BIN MOHD NIZAM", "MUHAMMAD RAYYAN RIZQIN BIN MOHD QATAMAN", "MUHAMMAD RIZQY FAKHRURRAZI BIN MOHD SAFWAN SARIY", "MUHAMMAD SOLIHIN BIN ZAINUDDIN", "NASRI BIN THIRADED NETH", "NIK AHMAD AMIR FIRDAUS BIN NIK SAMSI ANUAR", "RAJA NORFARESH RIEZQIN BIN RAJA ALI", "TUAN MUHAMMAD FATIH AZRI BIN TUAN MOHD FAIZAL", "ADRA NUR QAIREEN BINTI MOHD ZAMZIRO", "ARIANA ALISHA BINTI MOHD AMRAN", "NOR ELLFALINA BINTI BAHARUD DIN", "NUR AIN DAMIA BINTI ROSLE", "NUR ALISHA QAISARA BINTI ROSLAN", "NUR AMNI HANANI BINTI MOHD REZUAN", "NUR DHIA ADELIA BINTI MOHD ZAMHAM", "NUR IRIS RANIA BINTI MOHD SAIFULLAH", "NUR RANIA FARIHAH BINTI MOHD FAREZ IZWAN", "NURUL AIN ZAHRA BINTI ZAIDI", "QHAIRA HUSNA BINTI SHARI HAMDAN", "RUZILA BINTI MOHD RIDZUAN", "SYASYA QAISARA BINTI TUAN SHUHAIRIZAM", "SYULAIQA BATRISYA BINTI SULAIMAN", "TENGKU NUR KHASIF RANIA BINTI KAMARUL AZUAN", "UMI NUR ARSYIKIN NAJWAL BINTI ABDULLAH", "NUR ZARA SEDRISHA BINTI MOHD FIRDAUS AZAM"],
+            "6 AL KINDI": ["AMMAR ZIQRI BIN ZAHARI", "MOHAMAD HANIF BIN MOHAMAD FAIZIE", "MOHAMAD MIKAIL BIN JAMIL", "MUHAMMAD ADAM BIN ASHAARI", "MUHAMMAD ADRIAN MIKHAIL BIN MOHD ABASRI", "MUHAMMAD AFIRASH IKHWAN BIN MOHD IRWAN HAZUAN", "MUHAMMAD AIDIL HARITH BIN HAIRULAZAM", "MUHAMMAD AIZAT AMZAR BIN MOHD YAAKOB", "MUHAMMAD AMIN SYAZHAN BIN BADRUL HISYAM", "MUHAMMAD AQIF FITRI BIN MOHD ZAMRI", "MUHAMMAD ARFA HASIF BIN MOHD SHAMSURI", "MUHAMMAD ASYRAF RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD FARIZ HAKIMIE BIN ALIAS", "MUHAMMAD IQKLAS AZIQ BIN MUHAMMAD", "MUHAMMAD NOR IKHWAN BIN ABDULLAH", "MUHAMMAD SHAH AIDIL BIN SULAIMAN", "MUHAMMAD SHAMRIRULLOH BIN MUHAMMAD SAMRI", "MUHAMMAD THAQIF AFKAR BIN RUZLAN", "RAJA AQIL AISY HAFIDH BIN RAJA AZMAN", "AMMARA MALAEKA BINTI ABDUL 'AZHIM", "NUR AINA MAISARAH BINTI MUHAMMAD HAFIZAN", "NUR BATRISYA MAISARA BINTI MAZLAN", "NUR IMAN WADHIHAH BINTI PAXRURAZI", "NUR NAURAH ASSYIFAA BINTI ISMAIL", "NUR RAISHA AMNI BINTI MOHD RASHID", "NUR SYAFA AQILA BINTI ABDUL MU'IZ", "NUR SYAZA NABILAH BINTI MUHAMAD SHAZUAN", "NURUL AIN BATRISYIA BINTI ZULNIZAN", "NURUL SYAZWANI HUSNA BINTI YAHYA", "PUTERI NUR DAMIA MAISARAH BINTI MOHAMAD HAFIZ", "PUTRI NUR AIN NATASYA BINTI AMRAN", "PUTRI NUR SYAWAL DARWISYA BINTI MOHD HISHAM", "WAN NUR ALEEYA MAISARA BINTI WAN MOHD HAFIZUDDIN", "WAN NUR ANEESA BINTI WAN AZMAN", "WAN NUR MAWARDAH SAFIYYA BINTI WAN MUSTAFA", "NUR QAIRINA AMANI BINTI MOHD JUNAID"]
+        };
+
+        const wordDatabase = {
+            "Noun": ["Durian", "School", "Laptop", "Canteen", "Teacher", "Table"],
+            "Verb": ["Jump", "Sweep", "Write", "Listen", "Speak", "Clean"],
+            "Adjective": ["Spicy", "Tall", "Smart", "Happy", "Hungry", "Beautiful"],
+            "Preposition": ["Under", "Above", "Behind", "Beside", "Inside", "Outside"]
+        };
+
+        const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE"; 
+
+        // ============================================
+        // 2. GAME LOGIC
+        // ============================================
+        let state = { 
+            isPlaying: false, 
+            score: 0, 
+            lives: 3, 
+            targetCategory: "Noun", 
+            heroPos: {x:100, y:300}, 
+            keys:{}, 
+            entities:[], 
+            bossActive: false, 
+            bossHP: 5, 
+            bossY: 300, 
+            bossDir: 1,
+            user: {name:"", class:""},
+            levelSpeed: 1 
+        };
+
+        const els = {
+            login: document.getElementById('login-screen'),
+            start: document.getElementById('start-screen'),
+            over: document.getElementById('game-over-screen'),
+            hero: document.getElementById('hero'),
+            classSel: document.getElementById('class-select'),
+            nameIn: document.getElementById('name-input'),
+            dataList: document.getElementById('student-names'),
+            saveStatus: document.getElementById('save-status'),
+            bossContainer: document.getElementById('boss-container'),
+            bossHPFill: document.getElementById('boss-hp-fill')
+        };
+
+        function init() {
+            // Populate Class Dropdown
+            Object.keys(schoolData).forEach(cls => {
+                const opt = document.createElement('option');
+                opt.value = cls; opt.innerText = cls;
+                els.classSel.appendChild(opt);
+            });
+
+            // Create Mission Buttons
+            Object.keys(wordDatabase).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.innerText = cat;
+                btn.onclick = () => startGame(cat);
+                document.getElementById('category-buttons').appendChild(btn);
+            });
+
+            window.addEventListener('keydown', e => state.keys[e.key] = true);
+            window.addEventListener('keyup', e => state.keys[e.key] = false);
+            requestAnimationFrame(loop);
+        }
+
+        // --- LOGIN LOGIC ---
+        function populateNameList() {
+            const cls = els.classSel.value;
+            els.dataList.innerHTML = '';
+            els.nameIn.value = '';
+            
+            if(cls && schoolData[cls]) {
+                els.nameIn.disabled = false;
+                schoolData[cls].forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    els.dataList.appendChild(opt);
+                });
+            } else {
+                els.nameIn.disabled = true;
+            }
+        }
+
+        function handleLogin() {
+            const cls = els.classSel.value;
+            const name = els.nameIn.value;
+            
+            // Validate
+            if(!cls || !name) { alert("Please select Class and Name!"); return; }
+            
+            // Check if name is roughly in the list (allows for minor typing case diffs)
+            const validNames = schoolData[cls];
+            const match = validNames.find(n => n.toUpperCase() === name.toUpperCase());
+
+            if (!match) {
+                if(!confirm("Name not found in list. Play as Guest with this name?")) return;
+            }
+
+            state.user.class = cls;
+            state.user.name = match || name;
+            document.getElementById('player-name-display').innerText = state.user.name.split(' ')[0]; // Show first name only
+            document.getElementById('welcome-name').innerText = state.user.name;
+            
+            els.login.classList.add('hidden');
+            els.start.classList.remove('hidden');
+        }
+
+        function startGame(cat) {
+            state.targetCategory = cat;
+            state.score = 0; 
+            state.lives = 3; 
+            state.bossActive = false; 
+            state.entities = [];
+            state.levelSpeed = 1;
+            state.isPlaying = true;
+            
+            els.bossContainer.style.right = "-300px";
+            els.start.classList.add('hidden');
+            els.over.classList.add('hidden');
+            
+            document.getElementById('target-display').innerText = cat;
+            document.getElementById('score-display').innerText = "0";
+            document.getElementById('lives-display').innerText = "3";
+        }
+
+        // --- CORE LOOP ---
+        function loop() {
+            if(state.isPlaying) update();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // Hero
+            const speed = 6;
+            if(state.keys.ArrowUp && state.heroPos.y > 0) state.heroPos.y -= speed;
+            if(state.keys.ArrowDown && state.heroPos.y < window.innerHeight-60) state.heroPos.y += speed;
+            if(state.keys.ArrowRight && state.heroPos.x < window.innerWidth-80) state.heroPos.x += speed;
+            if(state.keys.ArrowLeft && state.heroPos.x > 0) state.heroPos.x -= speed;
+            els.hero.style.top = state.heroPos.y + 'px'; 
+            els.hero.style.left = state.heroPos.x + 'px';
+
+            // Boss Logic
+            if(state.bossActive) {
+                state.bossY += 2 * state.bossDir;
+                if(state.bossY > window.innerHeight - 200) state.bossDir = -1;
+                if(state.bossY < 50) state.bossDir = 1;
+                els.bossContainer.style.top = state.bossY + 'px';
+            }
+
+            // Spawn
+            const spawnRate = state.bossActive ? 0.05 : 0.02;
+            if(Math.random() < spawnRate) spawnWord();
+
+            // Entities
+            state.entities.forEach((ent, i) => {
+                ent.x -= (4 + state.levelSpeed); 
+                ent.el.style.left = ent.x + 'px';
+                
+                // Collision
+                if(isColliding(els.hero, ent.el)) {
+                    if(ent.cat === state.targetCategory) {
+                        handleCorrectHit();
+                    } else {
+                        handleWrongHit();
+                    }
+                    ent.el.remove();
+                    state.entities.splice(i, 1);
+                } else if(ent.x < -200) {
+                    ent.el.remove();
+                    state.entities.splice(i, 1);
+                }
+            });
+        }
+
+        function spawnWord() {
+            const isTarget = Math.random() > 0.4;
+            const cats = Object.keys(wordDatabase);
+            const cat = isTarget ? state.targetCategory : cats[Math.floor(Math.random()*cats.length)];
+            const word = wordDatabase[cat][Math.floor(Math.random()*wordDatabase[cat].length)];
+            
+            const div = document.createElement('div');
+            div.className = 'word-bubble';
+            div.innerText = word;
+            
+            // Visuals
+            if(cat === state.targetCategory) {
+                div.style.backgroundColor = '#C8E6C9';
+                div.style.border = '2px solid green';
+            } else {
+                div.style.backgroundColor = '#FFCDD2';
+                div.style.border = '2px solid red';
+            }
+
+            // Position
+            let startY = Math.random() * (window.innerHeight-50);
+            let startX = window.innerWidth;
+
+            if(state.bossActive) {
+                startY = state.bossY + 100; // Shoot from boss
+                startX = window.innerWidth - 200;
+            }
+
+            div.style.top = startY + 'px';
+            div.style.left = startX + 'px';
+            document.getElementById('game-container').appendChild(div);
+            
+            state.entities.push({ el: div, x: startX, cat: cat });
+        }
+
+        function isColliding(a, b) {
+            const r1 = a.getBoundingClientRect();
+            const r2 = b.getBoundingClientRect();
+            return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+        }
+
+        // --- GAME EVENTS ---
+        function handleCorrectHit() {
+            state.score += 10;
+            document.getElementById('score-display').innerText = state.score;
+
+            if(state.bossActive) {
+                state.bossHP--;
+                els.bossHPFill.style.width = (state.bossHP/5)*100 + "%";
+                if(state.bossHP <= 0) endBoss();
+            } else {
+                // Trigger Boss every 50 pts
+                if(state.score > 0 && state.score % 50 === 0) startBoss();
+            }
+        }
+
+        function handleWrongHit() {
+            state.lives--;
+            document.getElementById('lives-display').innerText = state.lives;
+            els.hero.style.background = 'black';
+            setTimeout(() => els.hero.style.background = 'linear-gradient(to right, #D32F2F, #B71C1C)', 100);
+            
+            if(state.lives <= 0) gameOver();
+        }
+
+        function startBoss() {
+            state.bossActive = true;
+            state.bossHP = 5;
+            els.bossHPFill.style.width = "100%";
+            els.bossContainer.style.right = "50px";
+            // Flash Effect
+            document.body.style.backgroundColor = "#333";
+            setTimeout(() => document.body.style.backgroundColor = "", 200);
+        }
+
+        function endBoss() {
+            state.bossActive = false;
+            els.bossContainer.style.right = "-300px";
+            state.levelSpeed += 0.5;
+            if(state.lives < 3) { state.lives++; document.getElementById('lives-display').innerText = state.lives; }
+        }
+
+        function gameOver() {
+            state.isPlaying = false;
+            els.over.classList.remove('hidden');
+            document.getElementById('final-score').innerText = state.score;
+            saveDataToGoogleSheets();
+        }
+
+        // --- GOOGLE SHEETS SAVE ---
+        function saveDataToGoogleSheets() {
+            if(GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
+                els.saveStatus.innerText = "Error: Google Sheet URL not set in code.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', state.user.name);
+            formData.append('class', state.user.class);
+            formData.append('score', state.score);
+
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+                .then(response => {
+                    els.saveStatus.innerText = "✅ Score Saved to Dr. Saufi's Database!";
+                    els.saveStatus.style.color = "#69F0AE";
+                    els.saveStatus.classList.remove('blink');
+                })
+                .catch(error => {
+                    els.saveStatus.innerText = "⚠️ Offline Mode (Saved locally)";
+                });
+        }
+
+        init();
+    </script>
 </body>
 </html>
